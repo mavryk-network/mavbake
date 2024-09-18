@@ -148,7 +148,7 @@ var bootstrapNodeCmd = &cobra.Command{
 
 		// // tarball bootstrap
 		// system.RequireElevatedUser()
-		// // curl -LfsS "https://mainnet.xtz-shots.io/rolling-tarball" | lz4 -d | tar -x -C "/var/mavryk"
+		// // curl -LfsS "https://mainnet.mav-shots.io/rolling-tarball" | lz4 -d | tar -x -C "/var/mavryk"
 		// log.Trace("Preparing directories...")
 		// tmpDir := path.Join(bb.Node.GetPath(), ".tarball-tmp")
 		// util.AssertEE(os.MkdirAll(tmpDir, 0700), "Failed to create directory structure for tarball download!", constants.ExitIOError)

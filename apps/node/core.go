@@ -17,7 +17,7 @@ var (
 	Id           string                 = constants.NodeAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
 		"id":   constants.NodeAppId,
-		"type": map[string]interface{}{"id": "xtz.node", "version": "latest"},
+		"type": map[string]interface{}{"id": "mav.node", "version": "latest"},
 		"configuration": map[string]interface{}{
 			"NODE_TYPE": "baker",
 		},

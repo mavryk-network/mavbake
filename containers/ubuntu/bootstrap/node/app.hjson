@@ -1,6 +1,6 @@
 {
     id: bb-default-node
-    type: xtz.node
+    type: mav.node
     configuration: {
         NODE_TYPE: baker
     }

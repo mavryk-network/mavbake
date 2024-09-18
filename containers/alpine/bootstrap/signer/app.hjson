@@ -1,6 +1,6 @@
 {
     id: bb-default-signer
-    type: xtz.signer
+    type: mav.signer
     configuration: {}
     user: ascend
 }
