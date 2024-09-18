@@ -29,10 +29,10 @@ else
 	fi
 fi
 
-if mavbake version | grep "$LATEST"; then
-	echo "Latest mavbake already available."
-	exit 0
-fi
+# if mavbake version | grep "$LATEST"; then
+# 	echo "Latest mavbake already available."
+# 	exit 0
+# fi
 
 PLATFORM=$(uname -m)
 if [ "$PLATFORM" = "x86_64" ]; then
