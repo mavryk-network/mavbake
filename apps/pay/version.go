@@ -1,13 +1,13 @@
 package pay
 
 import (
-	"github.com/tez-capital/tezbake/ami"
+	"github.com/mavryk-network/mavbake/ami"
 )
 
-func (app *Tezpay) GetVersions(options *ami.CollectVersionsOptions) (*ami.InstanceVersions, error) {
+func (app *Mavpay) GetVersions(options *ami.CollectVersionsOptions) (*ami.InstanceVersions, error) {
 	return ami.GetVersions(app.GetPath(), options, nil)
 }
 
-func (app *Tezpay) GetAppVersion() (string, error) {
+func (app *Mavpay) GetAppVersion() (string, error) {
 	return ami.GetAppVersion(app.GetPath())
 }

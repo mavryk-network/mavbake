@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/constants"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/constants"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )

@@ -9,10 +9,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/util"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -21,11 +21,11 @@ import (
 var listLedgersCmd = &cobra.Command{
 	Use:   "list-ledgers",
 	Short: "Prints list of available ledgers.",
-	Long:  "Collects and prits list of avaialble ledger ids.",
+	Long:  "Collects and prits list of available ledger ids.",
 	Run: func(cmd *cobra.Command, args []string) {
-		tezClientPath := path.Join(apps.Signer.GetPath(), "bin", "client")
-		log.Trace("Executing: " + strings.Join([]string{tezClientPath, "list", "connected", "ledgers"}, " "))
-		output, err := exec.Command(tezClientPath, "list", "connected", "ledgers").CombinedOutput()
+		mavClientPath := path.Join(apps.Signer.GetPath(), "bin", "client")
+		log.Trace("Executing: " + strings.Join([]string{mavClientPath, "list", "connected", "ledgers"}, " "))
+		output, err := exec.Command(mavClientPath, "list", "connected", "ledgers").CombinedOutput()
 		if matched, _ := regexp.Match("Error:", output); err != nil || matched {
 			fmt.Println(string(output))
 			log.WithFields(log.Fields{"error": err}).Error("Failed to list ledgers!")

@@ -13,9 +13,9 @@ if which curl >/dev/null; then
 
 	set -- curl -L $PROGRESS -o "$TMP_NAME"
 	if [ "$PRERELEASE" = true ]; then
-		LATEST=$(curl -sL https://api.github.com/repos/tez-capital/tezbake/releases | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | head -n 1 | tr -d '[:space:]')
+		LATEST=$(curl -sL https://api.github.com/repos/mavryk-network/mavbake/releases | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | head -n 1 | tr -d '[:space:]')
 	else
-		LATEST=$(curl -sL https://api.github.com/repos/tez-capital/tezbake/releases/latest | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | tr -d '[:space:]')
+		LATEST=$(curl -sL https://api.github.com/repos/mavryk-network/mavbake/releases/latest | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | tr -d '[:space:]')
 	fi
 else
 	if wget --help 2>&1 | grep "--show-progress" >/dev/null 2>&1; then
@@ -23,14 +23,14 @@ else
 	fi
 	set -- wget -q $PROGRESS -O "$TMP_NAME"
 	if [ "$PRERELEASE" = true ]; then
-		LATEST=$(wget -qO- https://api.github.com/repos/tez-capital/tezbake/releases | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | head -n 1 | tr -d '[:space:]')
+		LATEST=$(wget -qO- https://api.github.com/repos/mavryk-network/mavbake/releases | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | head -n 1 | tr -d '[:space:]')
 	else
-		LATEST=$(wget -qO- https://api.github.com/repos/tez-capital/tezbake/releases/latest | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | tr -d '[:space:]')
+		LATEST=$(wget -qO- https://api.github.com/repos/mavryk-network/mavbake/releases/latest | grep tag_name | sed 's/  "tag_name": "//g' | sed 's/",//g' | tr -d '[:space:]')
 	fi
 fi
 
-if tezbake version | grep "$LATEST"; then
-	echo "Latest tezbake already available."
+if mavbake version | grep "$LATEST"; then
+	echo "Latest mavbake already available."
 	exit 0
 fi
 
@@ -45,20 +45,20 @@ else
 fi
 
 if [ "$PRERELEASE" = true ]; then
-	echo "Downloading latest tezbake prerelease for $PLATFORM..."
+	echo "Downloading latest mavbake prerelease for $PLATFORM..."
 else
-	echo "Downloading tezbake-linux-$PLATFORM $LATEST..."
+	echo "Downloading mavbake-linux-$PLATFORM $LATEST..."
 fi
 
-if "$@" "https://github.com/tez-capital/tezbake/releases/download/$LATEST/tezbake-linux-$PLATFORM" &&
-	mv "$TMP_NAME" /usr/sbin/tezbake &&
-	chmod +x /usr/sbin/tezbake; then
+if "$@" "https://github.com/mavryk-network/mavbake/releases/download/$LATEST/mavbake-linux-$PLATFORM" &&
+	mv "$TMP_NAME" /usr/sbin/mavbake &&
+	chmod +x /usr/sbin/mavbake; then
 	if [ "$1" = "--prerelease" ]; then
-		echo "Latest tezbake prerelease for $PLATFORM successfully installed."
+		echo "Latest mavbake prerelease for $PLATFORM successfully installed."
 	else
-		echo "tezbake $LATEST for $PLATFORM successfully installed."
+		echo "mavbake $LATEST for $PLATFORM successfully installed."
 	fi
 else
-	echo "tezbake installation failed!" 1>&2
+	echo "mavbake installation failed!" 1>&2
 	exit 1
 fi

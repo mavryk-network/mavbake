@@ -1,4 +1,4 @@
-module github.com/tez-capital/tezbake
+module github.com/mavryk-network/mavbake
 
 go 1.22
 
@@ -9,6 +9,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.5.4
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/pkg/sftp v1.13.6
+	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	golang.org/x/crypto v0.19.0
@@ -24,7 +25,6 @@ require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/samber/lo v1.39.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a // indirect
 	golang.org/x/sys v0.17.0 // indirect

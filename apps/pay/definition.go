@@ -1,12 +1,12 @@
 package pay
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
-func (app *Tezpay) LoadAppDefinition() (map[string]interface{}, string, error) {
+func (app *Mavpay) LoadAppDefinition() (map[string]interface{}, string, error) {
 	return base.LoadAppDefinition(app)
 }
-func (app *Tezpay) LoadAppConfiguration() (map[string]interface{}, error) {
+func (app *Mavpay) LoadAppConfiguration() (map[string]interface{}, error) {
 	return base.LoadAppConfiguration(app)
 }

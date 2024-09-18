@@ -1,6 +1,6 @@
 package node
 
-import "github.com/tez-capital/tezbake/ami"
+import "github.com/mavryk-network/mavbake/ami"
 
 func (app *Node) Start(args ...string) (int, error) {
 	return ami.StartApp(app.GetPath(), args...)

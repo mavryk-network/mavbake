@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -23,7 +23,7 @@ type bbTextFormatter struct {
 
 func (f *bbTextFormatter) Format(entry *log.Entry) ([]byte, error) {
 	result := entry.Time.Format("15:04:05")
-	result = result + " [" + strings.ToUpper(string(entry.Level.String())) + "] (tezbake) " + entry.Message + "\n"
+	result = result + " [" + strings.ToUpper(string(entry.Level.String())) + "] (mavbake) " + entry.Message + "\n"
 	for k, v := range entry.Data {
 		result = result + k + "=" + fmt.Sprint(v) + "\n"
 	}
@@ -47,7 +47,7 @@ func (f *bbJsonFormatter) Format(entry *log.Entry) ([]byte, error) {
 	}
 	delete(result, "time")
 	result["timestamp"] = strconv.FormatInt(entry.Time.Unix(), 10)
-	result["module"] = "tezbake"
+	result["module"] = "mavbake"
 	resultLog, err := json.Marshal(result)
 	resultLog = append(resultLog, byte('\n'))
 	return resultLog, err
@@ -55,10 +55,10 @@ func (f *bbJsonFormatter) Format(entry *log.Entry) ([]byte, error) {
 
 var (
 	RootCmd = &cobra.Command{
-		Use:   "tezbake",
-		Short: "tezbake CLI",
-		Long: `tezbake CLI
-Copyright © 2023 tez.capital
+		Use:   "mavbake",
+		Short: "mavbake CLI",
+		Long: `mavbake CLI
+Copyright © 2024 Mavryk Dynamics
 `,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 
@@ -146,9 +146,9 @@ func init() {
 	RootCmd.PersistentFlags().StringP("path", "p", constants.DefaultBBDirectory, "Path to bake buddy instance")
 	RootCmd.PersistentFlags().StringP("output-format", "o", "auto", "Sets output log format (json/text/auto)")
 	RootCmd.PersistentFlags().StringP("log-level", "l", "info", "Sets output log format (json/text/auto)")
-	RootCmd.PersistentFlags().Bool("remote-instance", false, "Tells tezbake to operate in remote-instance mode")
+	RootCmd.PersistentFlags().Bool("remote-instance", false, "Tells mavbake to operate in remote-instance mode")
 	RootCmd.PersistentFlags().MarkHidden("remote-instance")
-	RootCmd.PersistentFlags().String("remote-instance-vars", "", "Tells tezbake to which remote vars to set (available only with remote-instance)")
+	RootCmd.PersistentFlags().String("remote-instance-vars", "", "Tells mavbake to which remote vars to set (available only with remote-instance)")
 	RootCmd.PersistentFlags().MarkHidden("remote-instance-vars")
 	RootCmd.PersistentFlags().SetInterspersed(false)
 }

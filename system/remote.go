@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/pkg/sftp"

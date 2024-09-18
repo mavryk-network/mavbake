@@ -4,17 +4,17 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
 )
 
 var (
 	Id           string                 = constants.PeakAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
 		"id":            constants.PeakAppId,
-		"type":          map[string]interface{}{"id": "tzc.tezpeak", "version": "latest"},
+		"type":          map[string]interface{}{"id": "tzc.mavpeak", "version": "latest"},
 		"configuration": map[string]interface{}{},
 		"user":          "",
 	}

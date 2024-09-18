@@ -1,7 +1,7 @@
 package node
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
 func (app *Node) LoadAppDefinition() (map[string]interface{}, string, error) {

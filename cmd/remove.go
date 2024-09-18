@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/system"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/system"
+	"github.com/mavryk-network/mavbake/util"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

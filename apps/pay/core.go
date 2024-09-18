@@ -4,23 +4,23 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
 )
 
 var (
-	Id           string                 = constants.TezpayAppId
+	Id           string                 = constants.MavpayAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
-		"id":            constants.TezpayAppId,
-		"type":          map[string]interface{}{"id": "tzc.tezpay", "version": "latest"},
+		"id":            constants.MavpayAppId,
+		"type":          map[string]interface{}{"id": "tzc.mavpay", "version": "latest"},
 		"configuration": map[string]interface{}{},
 		"user":          "",
 	}
 )
 
-type Tezpay struct {
+type Mavpay struct {
 	Path string
 }
 
@@ -28,38 +28,38 @@ type Tezpay struct {
 // The path parameter is the directory path to be associated with the Node.
 // If the path is empty, the default path will be used.
 // It returns a pointer to the newly created Node instance.
-func FromPath(path string) *Tezpay {
-	return &Tezpay{
+func FromPath(path string) *Mavpay {
+	return &Mavpay{
 		Path: path,
 	}
 }
 
-func (app *Tezpay) GetPath() string {
+func (app *Mavpay) GetPath() string {
 	if app.Path != "" {
 		return app.Path
 	}
 	return path.Join(cli.BBdir, Id)
 }
 
-func (app *Tezpay) GetId() string {
-	return strings.ToLower(constants.TezpayAppId)
+func (app *Mavpay) GetId() string {
+	return strings.ToLower(constants.MavpayAppId)
 }
 
-func (app *Tezpay) GetLabel() string {
+func (app *Mavpay) GetLabel() string {
 	return strings.ToUpper(app.GetId())
 }
 
-func (app *Tezpay) GetAmiTemplate(ctx *base.SetupContext) map[string]interface{} {
+func (app *Mavpay) GetAmiTemplate(ctx *base.SetupContext) map[string]interface{} {
 	return AMI_TEMPLATE
 }
-func (app *Tezpay) IsInstalled() bool {
+func (app *Mavpay) IsInstalled() bool {
 	return ami.IsAppInstalled(app.GetPath())
 }
 
-func (app *Tezpay) SupportsRemote() bool {
+func (app *Mavpay) SupportsRemote() bool {
 	return false
 }
 
-func (app *Tezpay) IsRemoteApp() bool {
+func (app *Mavpay) IsRemoteApp() bool {
 	return false
 }

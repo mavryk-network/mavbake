@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/tez-capital/tezbake/apps"
+	"github.com/mavryk-network/mavbake/apps"
 
 	"github.com/spf13/cobra"
 )

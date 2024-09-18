@@ -3,9 +3,9 @@ package base
 import (
 	"path"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/system"
 )
 
 type SetupContext struct {

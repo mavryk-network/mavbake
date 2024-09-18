@@ -7,8 +7,8 @@ const (
 	SignerAppServiceId string = "signer"
 	PeakAppId          string = "peak"
 	PeakAppServiceId   string = "peak"
-	TezpayAppId        string = "pay"
-	TezpayAppServiceId string = "pay"
+	MavpayAppId        string = "pay"
+	MavpayAppServiceId string = "pay"
 
 	PrivateKeyFile string = "idkey"
 	PublicKeyFile  string = "idkey.pub"
