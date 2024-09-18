@@ -5,10 +5,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -17,7 +17,7 @@ var (
 	Id           string                 = constants.NodeAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
 		"id":   constants.NodeAppId,
-		"type": map[string]interface{}{"id": "xtz.node", "version": "latest"},
+		"type": map[string]interface{}{"id": "mvrk.node", "version": "latest"},
 		"configuration": map[string]interface{}{
 			"NODE_TYPE": "baker",
 		},

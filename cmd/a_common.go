@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/apps/base"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/apps/base"
 )
 
 type AppInitialSelectionType string

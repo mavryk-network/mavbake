@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/system"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/system"
+	"github.com/mavryk-network/mavbake/util"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

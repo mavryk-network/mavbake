@@ -1,7 +1,7 @@
 package signer
 
 import (
-	"github.com/tez-capital/tezbake/ami"
+	"github.com/mavryk-network/mavbake/ami"
 )
 
 func (app *Signer) GetVersions(options *ami.CollectVersionsOptions) (*ami.InstanceVersions, error) {

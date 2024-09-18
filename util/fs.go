@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/mavryk-network/mavbake/constants"
 	log "github.com/sirupsen/logrus"
-	"github.com/tez-capital/tezbake/constants"
 )
 
 func ChownRS(username string, targetPath string) (int, error) {

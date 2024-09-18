@@ -1,9 +1,9 @@
 package node
 
 import (
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/system"
 )
 
 func (app *Node) UpgradeStorage() (int, error) {

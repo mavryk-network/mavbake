@@ -1,7 +1,7 @@
 package signer
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
 func (app *Signer) LoadAppDefinition() (map[string]interface{}, string, error) {

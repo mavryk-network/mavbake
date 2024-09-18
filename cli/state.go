@@ -1,6 +1,6 @@
 package cli
 
-import "github.com/tez-capital/tezbake/constants"
+import "github.com/mavryk-network/mavbake/constants"
 
 var (
 	JsonLogFormat    = false

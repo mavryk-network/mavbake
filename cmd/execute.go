@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/system"
 
 	shellquote "github.com/kballard/go-shellquote"
 	"github.com/spf13/cobra"
@@ -15,7 +15,7 @@ import (
 var executeCmd = &cobra.Command{
 	Use:    "execute",
 	Hidden: true,
-	Short:  "executes command through tezbake",
+	Short:  "executes command through mavbake",
 	Run: func(cmd *cobra.Command, args []string) {
 		requiresElevation, _ := cmd.Flags().GetBool("elevate")
 		if requiresElevation && !system.IsElevated() {

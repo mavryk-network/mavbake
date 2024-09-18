@@ -1,10 +1,10 @@
 package apps
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/apps/node"
-	"github.com/tez-capital/tezbake/apps/peak"
-	"github.com/tez-capital/tezbake/apps/signer"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/node"
+	"github.com/mavryk-network/mavbake/apps/peak"
+	"github.com/mavryk-network/mavbake/apps/signer"
 )
 
 var (

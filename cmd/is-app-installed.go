@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/apps/base"
 	"github.com/samber/lo"
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/apps/base"
 
 	"github.com/spf13/cobra"
 )

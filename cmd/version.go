@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
@@ -55,7 +55,7 @@ var versionCmd = &cobra.Command{
 		versionTable.SetOutputMirror(os.Stdout)
 		versionTable.SetStyle(table.StyleLight)
 		versionTable.AppendHeader(table.Row{"Tool", "Version"}, table.RowConfig{AutoMerge: true})
-		versionTable.AppendRow(table.Row{"tezbake", constants.VERSION})
+		versionTable.AppendRow(table.Row{"mavbake", constants.VERSION})
 
 		result := map[string]interface{}{
 			"cli": constants.VERSION,
@@ -64,7 +64,7 @@ var versionCmd = &cobra.Command{
 			versions, err := v.GetVersions(collectVersionOptions)
 			util.AssertE(err, fmt.Sprintf("Failed to collect %s's versions!", v.GetId()))
 			if v.GetId() == constants.NodeAppId && versions.IsRemote { // inject version from remote node
-				versionTable.AppendRow(table.Row{"tezbake (remote)", versions.Cli})
+				versionTable.AppendRow(table.Row{"mavbake (remote)", versions.Cli})
 				result["remote-cli"] = versions.Cli
 			}
 			result[v.GetId()] = versions
