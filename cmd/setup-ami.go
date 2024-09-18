@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/system"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

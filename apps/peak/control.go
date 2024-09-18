@@ -1,6 +1,6 @@
 package peak
 
-import "github.com/tez-capital/tezbake/ami"
+import "github.com/mavryk-network/mavbake/ami"
 
 func (app *Peak) Start(args ...string) (int, error) {
 	return ami.StartApp(app.GetPath(), args...)

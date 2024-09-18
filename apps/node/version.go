@@ -3,8 +3,8 @@ package node
 import (
 	"encoding/json"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
 func (app *Node) GetVersions(options *ami.CollectVersionsOptions) (*ami.InstanceVersions, error) {

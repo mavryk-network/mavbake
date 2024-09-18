@@ -12,10 +12,10 @@ import (
 	"strings"
 
 	"github.com/kballard/go-shellquote"
-	"github.com/tez-capital/tezbake/constants"
-	sshKey "github.com/tez-capital/tezbake/ssh"
-	"github.com/tez-capital/tezbake/system"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/constants"
+	sshKey "github.com/mavryk-network/mavbake/ssh"
+	"github.com/mavryk-network/mavbake/system"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/pkg/sftp"
@@ -311,39 +311,39 @@ func executePreparationStage(config *RemoteConfiguration, mode string, key []byt
 	util.AssertE(err, "Failed to get elevation credentials!")
 	platform, err := getRemoteArchitecture(sshClient)
 	util.AssertE(err, "Failed to get remote architecture!")
-	bbCliForRemoteFile := "tezbake-for-remote"
+	bbCliForRemoteFile := "mavbake-for-remote"
 
 	url := fmt.Sprintf(constants.DefaultBbCliUrl, platform)
-	log.Trace(fmt.Sprintf("Downloading and installing tezbake (%s) for remote...", url))
-	// download tezbake for remote
+	log.Trace(fmt.Sprintf("Downloading and installing mavbake (%s) for remote...", url))
+	// download mavbake for remote
 
 	remoteCliSource := os.Getenv("REMOTE_CLI_SOURCE")
 	if remoteCliSource != "" {
 		bbCliForRemoteFile = remoteCliSource
 	} else {
 		err := util.DownloadFile(url, bbCliForRemoteFile, false)
-		util.AssertE(err, "Failed to download tezbake for the remote!")
+		util.AssertE(err, "Failed to download mavbake for the remote!")
 	}
 	// open tmp file in remote
 	tmpBbCliPath := path.Join("/tmp", path.Base(bbCliForRemoteFile))
 	bbCliFile, err := sftp.Create(tmpBbCliPath)
-	util.AssertE(err, "Failed to open tezbake file on remote!")
+	util.AssertE(err, "Failed to open mavbake file on remote!")
 	// write to remote
 	bbCliForRemoteFileReader, err := os.Open(bbCliForRemoteFile)
-	util.AssertE(err, "Failed to open downloaded tezbake!")
+	util.AssertE(err, "Failed to open downloaded mavbake!")
 	bbCliFile.ReadFrom(bbCliForRemoteFileReader)
 	bbCliFile.Close()
 	// move file to sbin
 	result := system.RunSshCommand(sshClient, "chmod +x "+tmpBbCliPath, nil)
-	util.AssertE(result.Error, "Failed to activate tezbake!")
-	bbcCliDst := "/usr/sbin/tezbake"
+	util.AssertE(result.Error, "Failed to activate mavbake!")
+	bbcCliDst := "/usr/sbin/mavbake"
 	base64Cmd := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("cp %s %s", tmpBbCliPath, bbcCliDst)))
 	result = system.RunPipedSshCommand(sshClient, fmt.Sprintf("%s execute --base64 %s --elevate", tmpBbCliPath, base64Cmd), credentials.ToEnvMap())
-	util.AssertE(result.Error, "Failed to copy tezbake to sbin!")
-	util.AssertBE(result.ExitCode == 0, "Failed to copy tezbake to sbin!", constants.ExitIOError)
+	util.AssertE(result.Error, "Failed to copy mavbake to sbin!")
+	util.AssertBE(result.ExitCode == 0, "Failed to copy mavbake to sbin!", constants.ExitIOError)
 
 	result = system.RunSshCommand(sshClient, fmt.Sprintf("rm %s", tmpBbCliPath), nil)
-	util.AssertE(result.Error, "Failed to remove tezbake residue!")
+	util.AssertE(result.Error, "Failed to remove mavbake residue!")
 
 	log.Trace("Injecting ssh keys...")
 	// prepare .ssh
@@ -466,7 +466,7 @@ func keepJustRootCmdArgs(args []string) []string {
 func (session *AppRemoteSession) prepareArgsForProxy(passthrough bool) []string {
 	args := os.Args
 	proxyArgs := make([]string, 0)
-	proxyArgs = append(proxyArgs, "tezbake")
+	proxyArgs = append(proxyArgs, "mavbake")
 	if passthrough {
 		proxyArgs = append(proxyArgs, "--output-format=text")
 	} else {

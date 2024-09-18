@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/spf13/cobra"
 )

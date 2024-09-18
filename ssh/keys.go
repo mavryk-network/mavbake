@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/pem"
 
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/util"
 
 	"golang.org/x/crypto/ssh"
 )

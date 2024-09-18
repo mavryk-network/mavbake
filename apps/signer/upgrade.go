@@ -1,9 +1,9 @@
 package signer
 
 import (
-	"github.com/tez-capital/tezbake/ami"
+	"github.com/mavryk-network/mavbake/ami"
 
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
 func (app *Signer) Upgrade(ctx *base.UpgradeContext, args ...string) (int, error) {

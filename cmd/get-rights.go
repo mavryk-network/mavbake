@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/spf13/cobra"
 )

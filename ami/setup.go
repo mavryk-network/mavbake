@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/util"
 
 	"path"
 

@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/system"
 
 	"golang.org/x/crypto/ssh"
 
@@ -108,12 +108,12 @@ func prepareFolderStructure(sshClient *ssh.Client, instancePath string, app stri
 	workingDir := path.Join(instancePath, app)
 	log.Tracef("Preparing folder structure for remote %s...", workingDir)
 	encodedCmd := base64.StdEncoding.EncodeToString([]byte("mkdir -p " + workingDir))
-	result := system.RunSshCommand(sshClient, "tezbake execute --elevate --base64 "+encodedCmd, env)
+	result := system.RunSshCommand(sshClient, "mavbake execute --elevate --base64 "+encodedCmd, env)
 	if result.Error != nil {
 		return result.Error
 	}
 	encodedCmd = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("chown -R %s:%s ", user, user) + instancePath))
-	result = system.RunSshCommand(sshClient, "tezbake execute --elevate --base64 "+encodedCmd, env)
+	result = system.RunSshCommand(sshClient, "mavbake execute --elevate --base64 "+encodedCmd, env)
 	return result.Error
 }
 

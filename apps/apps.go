@@ -1,11 +1,11 @@
 package apps
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/apps/node"
-	"github.com/tez-capital/tezbake/apps/pay"
-	"github.com/tez-capital/tezbake/apps/peak"
-	"github.com/tez-capital/tezbake/apps/signer"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/node"
+	"github.com/mavryk-network/mavbake/apps/pay"
+	"github.com/mavryk-network/mavbake/apps/peak"
+	"github.com/mavryk-network/mavbake/apps/signer"
 )
 
 var (
@@ -49,6 +49,6 @@ func PeakFromPath(path string) *peak.Peak {
 	return peak.FromPath(path)
 }
 
-func TezpayFromPath(path string) *pay.Tezpay {
+func MavpayFromPath(path string) *pay.Mavpay {
 	return pay.FromPath(path)
 }

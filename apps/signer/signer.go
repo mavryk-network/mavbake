@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/cli"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/cli"
 )
 
 func (app *Signer) GetKeyHash(alias string, args ...string) (string, int, error) {

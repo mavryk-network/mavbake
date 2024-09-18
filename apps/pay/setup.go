@@ -3,18 +3,18 @@ package pay
 import (
 	"fmt"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/util"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func (app *Tezpay) GetSetupKind() string {
+func (app *Mavpay) GetSetupKind() string {
 	return base.MergingSetupKind
 }
-func (app *Tezpay) Setup(ctx *base.SetupContext, args ...string) (int, error) {
+func (app *Mavpay) Setup(ctx *base.SetupContext, args ...string) (int, error) {
 	appDef, err := base.GenerateConfiguration(app.GetAmiTemplate(ctx), ctx)
 	if err != nil {
 		log.Warn(err)

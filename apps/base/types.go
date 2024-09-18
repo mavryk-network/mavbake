@@ -1,6 +1,6 @@
 package base
 
-import "github.com/tez-capital/tezbake/ami"
+import "github.com/mavryk-network/mavbake/ami"
 
 const (
 	MergingSetupKind     = "merge"

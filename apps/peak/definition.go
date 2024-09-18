@@ -1,7 +1,7 @@
 package peak
 
 import (
-	"github.com/tez-capital/tezbake/apps/base"
+	"github.com/mavryk-network/mavbake/apps/base"
 )
 
 func (app *Peak) LoadAppDefinition() (map[string]interface{}, string, error) {

@@ -4,8 +4,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/tez-capital/tezbake/apps"
-	"github.com/tez-capital/tezbake/util"
+	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/util"
 
 	//"github.com/pierrec/lz4"
 
@@ -17,7 +17,7 @@ import (
 type ArtifactKind string
 
 const (
-	TezosSnapshot ArtifactKind = "tezos-snapshot"
+	MavrykSnapshot ArtifactKind = "mavryk-snapshot"
 )
 
 type snapshot struct {
@@ -36,7 +36,7 @@ type snapshots struct {
 
 var bootstrapNodeCmd = &cobra.Command{
 	Use:       "bootstrap-node [--no-check] <url> <block hash>",
-	Short:     "Bootstraps Bake Buddy's Tezos node.",
+	Short:     "Bootstraps Mavryk Dynamics' Mavryk node.",
 	Long:      "Downloads bootstrap and imports it into node databse.",
 	Args:      cobra.MinimumNArgs(0),
 	ValidArgs: []string{"url", "block hash"},
@@ -44,10 +44,10 @@ var bootstrapNodeCmd = &cobra.Command{
 		disableSnapshotCheck, _ := cmd.Flags().GetBool("no-check")
 
 		var chosenSnapshot *snapshot = nil
-		//artifactKind := TezosSnapshot
+		//artifactKind := MavrykSnapshot
 
 		// if system.IsTty() && len(args) == 0 {
-		// 	resp, err := http.Get("https://xtz-shots.io/tezos-snapshots.json")
+		// 	resp, err := http.Get("https://snapshots.mavryk.network/api/mavryk-snapshots.json")
 		// 	util.AssertEE(err, "Failed to get list of available snapshots", constants.ExitExternalError)
 		// 	defer resp.Body.Close()
 
@@ -72,7 +72,7 @@ var bootstrapNodeCmd = &cobra.Command{
 		// 	if !disableSnapshotCheck { // if parameter wasn't set, ask user
 		// 		prompt = &survey.Select{
 		// 			Message: "What kind of artifact do you want use to bootstrap?",
-		// 			Options: []string{string(Tarball), string(TezosSnapshot)},
+		// 			Options: []string{string(Tarball), string(MavrykSnapshot)},
 		// 		}
 		// 		err = survey.AskOne(prompt, &artifactKind)
 		// 		util.AssertEE(err, "failed to get user input", constants.ExitUserInvalidInput)
@@ -116,7 +116,7 @@ var bootstrapNodeCmd = &cobra.Command{
 		// 	chosenSnapshot = &snapshot
 		// }
 
-		//if artifactKind == TezosSnapshot {
+		//if artifactKind == MavrykSnapshot {
 		bootstrapArgs := make([]string, 0)
 		bootstrapArgs = append(bootstrapArgs, "bootstrap")
 
@@ -130,11 +130,11 @@ var bootstrapNodeCmd = &cobra.Command{
 			bootstrapArgs = append(bootstrapArgs, "--no-check")
 		}
 		exitCode, err := apps.Node.Execute(bootstrapArgs...)
-		util.AssertEE(err, "Failed to bootstrap tezos node", exitCode)
+		util.AssertEE(err, "Failed to bootstrap mavryk node", exitCode)
 
 		log.Info("Upgrading storage...")
 		exitCode, err = apps.Node.UpgradeStorage()
-		util.AssertEE(err, "Failed to upgrade tezos storage", exitCode)
+		util.AssertEE(err, "Failed to upgrade mavryk storage", exitCode)
 
 		os.Exit(exitCode)
 		//}
@@ -148,7 +148,7 @@ var bootstrapNodeCmd = &cobra.Command{
 
 		// // tarball bootstrap
 		// system.RequireElevatedUser()
-		// // curl -LfsS "https://mainnet.xtz-shots.io/rolling-tarball" | lz4 -d | tar -x -C "/var/tezos"
+		// // curl -LfsS "https://mainnet.xtz-shots.io/rolling-tarball" | lz4 -d | tar -x -C "/var/mavryk"
 		// log.Trace("Preparing directories...")
 		// tmpDir := path.Join(bb.Node.GetPath(), ".tarball-tmp")
 		// util.AssertEE(os.MkdirAll(tmpDir, 0700), "Failed to create directory structure for tarball download!", constants.ExitIOError)
@@ -183,7 +183,7 @@ var bootstrapNodeCmd = &cobra.Command{
 		// 	log.Info("Node services up. Running bootstrap in live mode...")
 		// 	bb.Node.Stop()
 		// }
-		// nodeDataDir := path.Join(bb.Node.GetPath(), "data", ".tezos-node")
+		// nodeDataDir := path.Join(bb.Node.GetPath(), "data", ".mavryk-node")
 		// util.AssertEE(os.MkdirAll(path.Dir(nodeDataDir), 0700), "Failed to create directory tree for node data!", constants.ExitIOError)
 		// identityFileName := "identity.json"
 		// peersFileName := "peers.json"
@@ -205,7 +205,7 @@ var bootstrapNodeCmd = &cobra.Command{
 
 		// log.Info("Upgrading storage...")
 		// exitCode, err := bb_module_node.Module.UpgradeStorage()
-		// util.AssertEE(err, "Failed to upgrade tezos storage", exitCode)
+		// util.AssertEE(err, "Failed to upgrade mavryk storage", exitCode)
 
 		// util.ChownR(nodeUser, path.Join(bb.Node.GetPath(), "data"))
 

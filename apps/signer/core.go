@@ -4,11 +4,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tez-capital/tezbake/ami"
-	"github.com/tez-capital/tezbake/apps/base"
-	"github.com/tez-capital/tezbake/cli"
-	"github.com/tez-capital/tezbake/constants"
-	"github.com/tez-capital/tezbake/system"
+	"github.com/mavryk-network/mavbake/ami"
+	"github.com/mavryk-network/mavbake/apps/base"
+	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
+	"github.com/mavryk-network/mavbake/system"
 )
 
 var (
