@@ -14,7 +14,7 @@ var (
 	Id           string                 = constants.PeakAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
 		"id":            constants.PeakAppId,
-		"type":          map[string]interface{}{"id": "tzc.mavpeak", "version": "latest"},
+		"type":          map[string]interface{}{"id": "mvd.mavpeak", "version": "latest"},
 		"configuration": map[string]interface{}{},
 		"user":          "",
 	}

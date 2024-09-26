@@ -31,7 +31,7 @@ jobs:
       #   with:
       #     repository: mavryk-network/mavbake-releases
       #     path: releases
-      #     token: ${{ secrets.TZC_MAVBAKE_RELEASES_RW_AT }}
+      #     token: ${{ secrets.MVD_MAVBAKE_RELEASES_RW_AT }}
 
       # - name: Copy releases
       #   run: cp -r bin/* releases/

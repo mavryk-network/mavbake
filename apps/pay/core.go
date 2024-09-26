@@ -14,7 +14,7 @@ var (
 	Id           string                 = constants.MavpayAppId
 	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
 		"id":            constants.MavpayAppId,
-		"type":          map[string]interface{}{"id": "tzc.mavpay", "version": "latest"},
+		"type":          map[string]interface{}{"id": "mvd.mavpay", "version": "latest"},
 		"configuration": map[string]interface{}{},
 		"user":          "",
 	}
