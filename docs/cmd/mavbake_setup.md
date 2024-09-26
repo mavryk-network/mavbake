@@ -28,7 +28,7 @@ mavbake setup [flags]
       --remote-auth string            pass|key:<path to key>  (experimental)
       --remote-elevate string         only 'sudo' supported now (experimental)
       --remote-node string            username:<ssh key file>@address (experimental)
-      --remote-path string            where on remote install node - defaults to '/bake-buddy/node' (experimental) (default "/bake-buddy")
+      --remote-path string            where on remote install node - defaults to '/mavbake/node' (experimental) (default "/mavbake")
       --remote-reset                  Resets and reconfigures remote node locator. (experimental)
       --remote-user string            Sets user remote node will be operated under. (experimental, ignored if remote uses elevation) (default "bb")
   -a, --setup-ami                     Install latest ami during the BB setup.
@@ -44,7 +44,7 @@ mavbake setup [flags]
 ```
   -l, --log-level string       Sets output log format (json/text/auto) (default "info")
   -o, --output-format string   Sets output log format (json/text/auto) (default "auto")
-  -p, --path string            Path to bake buddy instance (default "/bake-buddy")
+  -p, --path string            Path to mavpay instance (default "/mavbake")
 ```
 
 ### SEE ALSO

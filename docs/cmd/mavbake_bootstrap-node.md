@@ -22,7 +22,7 @@ mavbake bootstrap-node [--no-check] <url> <block hash> [flags]
 ```
   -l, --log-level string       Sets output log format (json/text/auto) (default "info")
   -o, --output-format string   Sets output log format (json/text/auto) (default "auto")
-  -p, --path string            Path to bake buddy instance (default "/bake-buddy")
+  -p, --path string            Path to mavpay instance (default "/mavbake")
 ```
 
 ### SEE ALSO

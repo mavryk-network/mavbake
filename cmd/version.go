@@ -18,7 +18,7 @@ import (
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Prints BB CLI version.",
-	Long:  "Prints BakeBuddy CLI version.",
+	Long:  "Prints MavPay CLI version.",
 	Run: func(cmd *cobra.Command, args []string) {
 		shouldPrintAll, _ := cmd.Flags().GetBool("all")
 		shouldPrintPackages, _ := cmd.Flags().GetBool("packages")

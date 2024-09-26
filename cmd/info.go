@@ -53,7 +53,7 @@ var infoCmd = &cobra.Command{
 
 		if cli.JsonLogFormat || cli.IsRemoteInstance {
 			output, err := json.Marshal(result)
-			util.AssertEE(err, "Failed to serialize Bake Buddy runtime info!", constants.ExitSerializationFailed)
+			util.AssertEE(err, "Failed to serialize MavPay runtime info!", constants.ExitSerializationFailed)
 			fmt.Println(string(output))
 			return
 		}

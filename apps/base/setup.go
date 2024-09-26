@@ -28,7 +28,7 @@ type SetupContext struct {
 	RemoteReset           bool
 }
 
-func (ctx *SetupContext) ToRemoteConfiguration(app BakeBuddyApp) *ami.RemoteConfiguration {
+func (ctx *SetupContext) ToRemoteConfiguration(app MavPayApp) *ami.RemoteConfiguration {
 	connectionDetails := system.GetRemoteConnectionDetails(ctx.Remote)
 
 	return &ami.RemoteConfiguration{

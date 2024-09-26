@@ -66,7 +66,7 @@ var setupCmd = &cobra.Command{
 		id := util.GetCommandStringFlagS(cmd, Id)
 		force := util.GetCommandBoolFlagS(cmd, Force)
 		util.AssertBE(id != "", "Id not specified", constants.ExitInvalidId)
-		util.AssertBE(id != "bb-default" || cli.BBdir == constants.DefaultBBDirectory, "Please specify id for baker. 'default' id is allowed only for bake buddy installed in '"+constants.DefaultBBDirectory+"' path!", constants.ExitInvalidId)
+		util.AssertBE(id != "bb-default" || cli.BBdir == constants.DefaultBBDirectory, "Please specify id for baker. 'default' id is allowed only for mavpay installed in '"+constants.DefaultBBDirectory+"' path!", constants.ExitInvalidId)
 		cli.BBInstanceId = id
 
 		if util.GetCommandBoolFlagS(cmd, SetupAmi) || cli.IsRemoteInstance {
@@ -154,7 +154,7 @@ func init() {
 
 	setupCmd.Flags().String(RemoteNode, "", "username:<ssh key file>@address (experimental)")
 	setupCmd.Flags().String(RemoteAuth, "", "pass|key:<path to key>  (experimental)")
-	setupCmd.Flags().String(RemotePath, constants.DefaultRemoteBBDirectory, "where on remote install node - defaults to '/bake-buddy/node' (experimental)")
+	setupCmd.Flags().String(RemotePath, constants.DefaultRemoteBBDirectory, "where on remote install node - defaults to '/mavbake/node' (experimental)")
 	setupCmd.Flags().String(RemoteElevate, "", "only 'sudo' supported now (experimental)")
 	setupCmd.Flags().String(RemoteElevateUser, "", "user to elevate to (experimental)")
 	setupCmd.Flags().MarkHidden(RemoteElevateUser)

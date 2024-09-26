@@ -49,7 +49,7 @@ type AppSelectionCriteria struct {
 //     ImplicitApps, or AllFallback), and option check type (NoOptionCheck or InfoOptionCheck).
 //
 // Returns:
-// A slice of base.BakeBuddyApp instances that meet the specified selection criteria. If no apps match the initial
+// A slice of base.MavPayApp instances that meet the specified selection criteria. If no apps match the initial
 // selection and option check criteria, the fallback selection is used to determine the final set of apps.
 //
 // Example:
@@ -63,8 +63,8 @@ type AppSelectionCriteria struct {
 //     criteria := AppSelectionCriteria{InitialSelection: AllApps, OptionCheckType: InfoOptionCheck, FallbackSelection: ImplicitApps}
 //     selectedApps := FilterAppsBySelectionCriteria(cmd, criteria)
 //     // This will return apps based on user flags, apps with 'info' options if flagged, or implicit apps as a fallback.
-func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteria) []base.BakeBuddyApp {
-	var initialApps []base.BakeBuddyApp
+func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteria) []base.MavPayApp {
+	var initialApps []base.MavPayApp
 	switch criteria.InitialSelection {
 	case InstalledApps:
 		initialApps = apps.GetInstalledApps()
@@ -72,7 +72,7 @@ func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteri
 		initialApps = apps.All
 	}
 
-	selectedApps := make([]base.BakeBuddyApp, 0, len(initialApps))
+	selectedApps := make([]base.MavPayApp, 0, len(initialApps))
 	for _, app := range initialApps {
 		if checked, _ := cmd.Flags().GetBool(app.GetId()); checked {
 			selectedApps = append(selectedApps, app)
@@ -101,17 +101,17 @@ func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteri
 	}
 
 	if len(selectedApps) == 0 {
-		var fallbackApps []base.BakeBuddyApp
+		var fallbackApps []base.MavPayApp
 		switch criteria.FallbackSelection {
 		case NoFallback:
-			return []base.BakeBuddyApp{}
+			return []base.MavPayApp{}
 		case ImplicitApps:
 			fallbackApps = apps.Implicit
 		case AllFallback:
 			fallbackApps = apps.All
 		}
 
-		selectedApps = lo.Filter(initialApps, func(app base.BakeBuddyApp, _ int) bool {
+		selectedApps = lo.Filter(initialApps, func(app base.MavPayApp, _ int) bool {
 			return slices.Contains(fallbackApps, app)
 		})
 	}

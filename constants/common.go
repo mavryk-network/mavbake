@@ -3,7 +3,7 @@ package constants
 const (
 	VERSION = "0.15.1-beta"
 
-	DefaultBBDirectory       string = "/bake-buddy"
+	DefaultBBDirectory       string = "/mavbake"
 	DefaultRemoteBBDirectory string = DefaultBBDirectory
 	DefaultRemoteUser        string = "bb"
 	DefaultSshUser           string = "root"

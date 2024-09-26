@@ -31,9 +31,9 @@ func LoadAppConfiguration(app IAmiBasedApp) (map[string]interface{}, error) {
 	return def, nil
 }
 
-type BakeBuddyAppDefinition struct {
+type MavPayAppDefinition struct {
 	Id      string
-	Control BakeBuddyApp
+	Control MavPayApp
 }
 
 func GenerateConfiguration(template map[string]interface{}, ctx *SetupContext) (map[string]interface{}, error) {
