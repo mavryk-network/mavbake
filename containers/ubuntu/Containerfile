@@ -2,10 +2,10 @@ FROM ghcr.io/alis-is/ascend:latest-ubuntu-ami
 
 COPY bootstrap /bootstrap
 
-ENV ASCEND_APPS=/bake-buddy/
+ENV ASCEND_APPS=/mavpay/
 ENV APPS_BOOTSTRAP=/bootstrap
 
-RUN mkdir -p /bake-buddy
+RUN mkdir -p /mavpay
 
 RUN wget -q https://github.com/mavryk-network/mavbake/raw/main/install.sh -O /tmp/install.sh && sh /tmp/install.sh
 

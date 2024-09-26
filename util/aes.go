@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	AES_DATA_PREFIX = "bake-buddy"
+	AES_DATA_PREFIX = "mavpay"
 )
 
 func PrepareAESKey(password, salt string) []byte {

@@ -17,7 +17,7 @@ import (
 var appsCmd = &cobra.Command{
 	Use:   "apps",
 	Short: "Prints BB CLI apps.",
-	Long:  "Prints BakeBuddy CLI apps.",
+	Long:  "Prints MavPay CLI apps.",
 	Run: func(cmd *cobra.Command, args []string) {
 		appsTable := table.NewWriter()
 		appsTable.SetOutputMirror(os.Stdout)

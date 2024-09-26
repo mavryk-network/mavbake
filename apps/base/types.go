@@ -7,7 +7,7 @@ const (
 	OverWritingSetupKind = "overwrite"
 )
 
-type BakeBuddyApp interface {
+type MavPayApp interface {
 	GetId() string
 	GetLabel() string
 	GetPath() string

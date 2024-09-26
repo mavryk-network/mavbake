@@ -19,7 +19,7 @@ var isAppInstalledCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
 
-		app, found := lo.Find(apps.All, func(v base.BakeBuddyApp) bool {
+		app, found := lo.Find(apps.All, func(v base.MavPayApp) bool {
 			return v.GetId() == id
 		})
 		fmt.Println(found && app.IsInstalled())

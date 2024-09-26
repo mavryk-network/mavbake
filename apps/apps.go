@@ -13,10 +13,10 @@ var (
 	Signer = signer.FromPath("")
 	Peak   = peak.FromPath("")
 	Pay    = pay.FromPath("")
-	All    = []base.BakeBuddyApp{
+	All    = []base.MavPayApp{
 		Node, Signer, Peak, Pay,
 	}
-	Implicit = []base.BakeBuddyApp{
+	Implicit = []base.MavPayApp{
 		Node, Signer,
 	}
 )
@@ -27,8 +27,8 @@ type UpgradeContext = base.UpgradeContext
 type NodeInfoCollectionOptions = node.InfoCollectionOptions
 type SignerInfoCollectionOptions = signer.InfoCollectionOptions
 
-func GetInstalledApps() []base.BakeBuddyApp {
-	result := make([]base.BakeBuddyApp, 0)
+func GetInstalledApps() []base.MavPayApp {
+	result := make([]base.MavPayApp, 0)
 	for _, v := range All {
 		if v.IsInstalled() {
 			result = append(result, v)
