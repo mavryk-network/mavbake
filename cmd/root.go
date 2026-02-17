@@ -68,6 +68,7 @@ var (
 		Short: "mavbake CLI",
 		Long: fmt.Sprintf(`mavbake CLI
 Copyright © %d tez.capital
+Copyright © %d Mavryk Dynamics
 `, time.Now().Year()),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if cmd.Flags().Changed(PATH_FLAG) {

@@ -29,7 +29,7 @@ Copyright © 2026 Mavryk Dynamics
 * [mavbake instance](/mavbake/reference/cmd/mavbake_instance)	 - Executes command on a specific mavbake instance or enters the instance environment
 * [mavbake list-ledgers](/mavbake/reference/cmd/mavbake_list-ledgers)	 - Prints list of available ledgers.
 * [mavbake node](/mavbake/reference/cmd/mavbake_node)	 - Passes args through to node app.
-* [mavbake octez-signer](/mavbake/reference/cmd/mavbake_octez-signer)	 - Passes args through to signer app - octez-signer.
+* [mavbake mavkit-signer](/mavbake/reference/cmd/mavbake_mavkit-signer)	 - Passes args through to signer app - mavkit-signer.
 * [mavbake pay](/mavbake/reference/cmd/mavbake_pay)	 - Passes args through to mavpay app.
 * [mavbake peak](/mavbake/reference/cmd/mavbake_peak)	 - Passes args through to peak app.
 * [mavbake register-key](/mavbake/reference/cmd/mavbake_register-key)	 - Register key for baking.

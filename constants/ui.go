@@ -2,7 +2,7 @@ package constants
 
 import "github.com/charmbracelet/lipgloss"
 
-// TezCapital brand colors based on gradient: #4d609b -> #233366 -> #000b2c
+// Mavryk Dynamics brand colors based on gradient: #4d609b -> #233366 -> #000b2c
 // Using AdaptiveColor to support both light and dark terminal backgrounds
 var (
 	// Primary accent color - lighter blue from the gradient

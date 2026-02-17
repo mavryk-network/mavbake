@@ -22,7 +22,7 @@ var updateDalProfilesCmd = &cobra.Command{
 	Args:  cobra.ArbitraryArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		util.AssertBE(apps.DalNode.IsInstalled(), "DAL node is not installed!", constants.ExitAppNotInstalled)
-		util.AssertBE(apps.Node.IsInstalled(), "Octez node is not installed!", constants.ExitAppNotInstalled)
+		util.AssertBE(apps.Node.IsInstalled(), "Mavkit node is not installed!", constants.ExitAppNotInstalled)
 
 		system.RequireElevatedUser()
 

@@ -1,19 +1,19 @@
-docs/cmd/mavbake_octez-signer.md## mavbake octez-signer
+docs/cmd/mavbake_mavkit-signer.md## mavbake mavkit-signer
 
-Passes args through to signer app - octez-signer.
+Passes args through to signer app - mavkit-signer.
 
 ### Synopsis
 
-Passes args through to signer app - octez-signer.
+Passes args through to signer app - mavkit-signer.
 
 ```
-mavbake octez-signer [flags]
+mavbake mavkit-signer [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for octez-signer
+  -h, --help   help for mavkit-signer
 ```
 
 ### Options inherited from parent commands

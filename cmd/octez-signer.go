@@ -10,10 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var octezSignerCmd = &cobra.Command{
-	Use:                "octez-signer",
-	Short:              "Passes args through to signer app - octez-signer.",
-	Long:               `Passes args through to signer app - octez-signer.`,
+var mavkitSignerCmd = &cobra.Command{
+	Use:                "mavkit-signer",
+	Short:              "Passes args through to signer app - mavkit-signer.",
+	Long:               `Passes args through to signer app - mavkit-signer.`,
 	DisableFlagParsing: true,
 	Run: func(cmd *cobra.Command, _ []string) {
 		args := util.GetCommandArgs(cmd)
@@ -24,7 +24,7 @@ var octezSignerCmd = &cobra.Command{
 }
 
 func init() {
-	octezSignerCmd.Flags().SetInterspersed(false)
+	mavkitSignerCmd.Flags().SetInterspersed(false)
 
-	RootCmd.AddCommand(octezSignerCmd)
+	RootCmd.AddCommand(mavkitSignerCmd)
 }

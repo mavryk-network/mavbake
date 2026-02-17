@@ -44,7 +44,7 @@ func enterInstanceEnvironment(alias, instancePath string) error {
 
 	// Set custom colorful PS1 based on shell type and determine shell args
 	// Format: mavbake ❯ instance ❯ <alias> <pwd> ❯
-	// Colors based on tez.capital branding with powerline-style arrows
+	// Colors based on mavryk dynamics branding with powerline-style arrows
 	shellName := filepath.Base(shell)
 	var shellArgs []string
 

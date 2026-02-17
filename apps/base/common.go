@@ -53,9 +53,9 @@ type MavBakeAppDefinition struct {
 }
 
 // try to a dumb conversion
-// https://github.com/tez-capital/xtz.configs/blob/main/seoulnet.json
+// https://github.com/mavryk-network/mvrk.configs/blob/main/basenet.json
 // to
-// https://raw.githubusercontent.com/tez-capital/xtz.configs/refs/heads/main/seoulnet.json
+// https://raw.githubusercontent.com/mavryk-network/mvrk.configs/refs/heads/main/basenet.json
 func tryConvertGitHubContentURL(url string) string {
 	if !strings.HasPrefix(url, "https://github.com/") || !strings.Contains(url, "/blob/") {
 		return url
