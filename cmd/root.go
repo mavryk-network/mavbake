@@ -2,136 +2,107 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/constants"
-
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"go.alis.is/common/log"
 )
 
-type bbTextFormatter struct {
-	log.TextFormatter
-}
+const (
+	LOG_LEVEL_FLAG               = "log-level"
+	NO_COLOR_FLAG                = "no-color"
+	PATH_FLAG                    = "path"
+	REMOTE_INSTANCE_VARS_FLAG    = "remote-instance-vars"
+	VERSION_FLAG                 = "version"
+	DISABLE_DONATION_PROMPT_FLAG = "disable-donation-prompt"
+	OUTPUT_FORMAT_FLAG           = "output-format"
+	PAY_ONLY_ADDRESS_PREFIX      = "pay-only-address-prefix"
+)
 
-func (f *bbTextFormatter) Format(entry *log.Entry) ([]byte, error) {
-	result := entry.Time.Format("15:04:05")
-	result = result + " [" + strings.ToUpper(string(entry.Level.String())) + "] (mavbake) " + entry.Message + "\n"
-	for k, v := range entry.Data {
-		result = result + k + "=" + fmt.Sprint(v) + "\n"
-	}
-	return []byte(result), nil
-}
+func setupLogger(level slog.Level, format string, noColor bool) (jsonLogFormat bool) {
+	var jsonWriters []io.Writer
 
-type bbJsonFormatter struct {
-	log.JSONFormatter
-}
+	textWriters := []io.Writer{os.Stdout}
 
-func (f *bbJsonFormatter) Format(entry *log.Entry) ([]byte, error) {
-	//strconv.FormatInt(entry.Time.Unix(), 10)
-	l, err := f.JSONFormatter.Format(entry)
-	if err != nil {
-		return []byte{}, err
+	switch format {
+	case "json":
+		jsonWriters = append(jsonWriters, os.Stdout)
+		jsonLogFormat = true
+	case "text":
+		textWriters = append(textWriters, os.Stdout)
+		jsonLogFormat = false
 	}
-	result := make(map[string]interface{})
-	err = json.Unmarshal(l, &result)
-	if err != nil {
-		return []byte{}, err
+
+	handlers := make([]slog.Handler, 0, 2)
+	if len(textWriters) > 0 {
+		textHandler := log.NewPrettyTextLogHandler(log.NewMultiWriter(textWriters...), log.PrettyHandlerOptions{
+			HandlerOptions: slog.HandlerOptions{Level: level},
+			NoColor:        noColor,
+			AppName:        "mavbake",
+		})
+		handlers = append(handlers, textHandler)
 	}
-	delete(result, "time")
-	result["timestamp"] = strconv.FormatInt(entry.Time.Unix(), 10)
-	result["module"] = "mavbake"
-	resultLog, err := json.Marshal(result)
-	resultLog = append(resultLog, byte('\n'))
-	return resultLog, err
+
+	if len(jsonWriters) > 0 {
+		jsonHandler := slog.NewJSONHandler(log.NewMultiWriter(jsonWriters...), &slog.HandlerOptions{Level: level})
+		handlers = append(handlers, jsonHandler)
+	}
+
+	slog.SetDefault(slog.New(log.NewSlogMultiHandler(handlers...)))
+
+	return
 }
 
 var (
 	RootCmd = &cobra.Command{
 		Use:   "mavbake",
 		Short: "mavbake CLI",
-		Long: `mavbake CLI
-Copyright © 2024 Mavryk Dynamics
-`,
+		Long: fmt.Sprintf(`mavbake CLI
+Copyright © %d tez.capital
+`, time.Now().Year()),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-
-			if cmd.Flags().Changed("path") {
-				cli.BBdir, _ = cmd.Flags().GetString("path")
+			if cmd.Flags().Changed(PATH_FLAG) {
+				cli.BBdir, _ = cmd.Flags().GetString(PATH_FLAG)
 			} else {
-				bbDir := os.Getenv("BB_DIR")
+				bbDir := os.Getenv("MAVBAKE_INSTANCE_PATH")
 				if bbDir != "" {
 					cli.BBdir = bbDir
 				}
 			}
 
-			switch level, _ := cmd.Flags().GetString("log-level"); level {
-			case "trace":
-				log.SetLevel(log.TraceLevel)
-				cli.LogLevel = "trace"
-			case "debug":
-				log.SetLevel(log.DebugLevel)
-				cli.LogLevel = "debug"
-			case "warn":
-				log.SetLevel(log.WarnLevel)
-				cli.LogLevel = "warn"
-			case "error":
-				log.SetLevel(log.ErrorLevel)
-				cli.LogLevel = "error"
-			default:
-				log.SetLevel(log.InfoLevel)
-			}
-			log.Trace("Log level set to '" + cli.LogLevel + "'")
+			logLevel := slog.LevelInfo
+			logLevelFlag, _ := cmd.Flags().GetString(LOG_LEVEL_FLAG)
+			logLevel, cli.LogLevel = log.ParseLevel(logLevelFlag)
+			format, _ := cmd.Flags().GetString(OUTPUT_FORMAT_FLAG)
+			noColor, _ := cmd.Flags().GetBool(NO_COLOR_FLAG)
+			cli.JsonLogFormat = setupLogger(logLevel, format, noColor)
+			log.Debug("logger configured", "format", format, "level", logLevelFlag)
 
-			cli.IsRemoteInstance, _ = cmd.Flags().GetBool("remote-instance")
-			if cli.IsRemoteInstance {
-				remoteVars, _ := cmd.Flags().GetString("remote-instance-vars")
-				if remoteVars != "" {
-					vars := strings.Split(remoteVars, ";")
-					for _, _var := range vars {
-						kvPair := strings.Split(_var, "=")
-						if len(kvPair) != 2 {
-							continue
-						}
-						ami.REMOTE_VARS[kvPair[0]] = kvPair[1]
+			remoteVars, _ := cmd.Flags().GetString(REMOTE_INSTANCE_VARS_FLAG)
+			if remoteVars != "" {
+				vars := strings.Split(remoteVars, ";")
+				for _, _var := range vars {
+					kvPair := strings.Split(_var, "=")
+					if len(kvPair) != 2 {
+						continue
 					}
-				}
-			}
-
-			format, _ := cmd.Flags().GetString("output-format")
-			// if cli.IsRemoteInstance { // override for remote instance
-			// 	format = "json"
-			// }
-
-			switch format {
-			case "json":
-				cli.JsonLogFormat = true
-				log.SetFormatter(&bbJsonFormatter{})
-				log.Trace("Output format set to 'json'")
-			case "text":
-				log.SetFormatter(&bbTextFormatter{})
-				log.Trace("Output format set to 'text'")
-			default:
-				if fileInfo, _ := os.Stdout.Stat(); (fileInfo.Mode() & os.ModeCharDevice) == 0 {
-					log.SetFormatter(&bbJsonFormatter{})
-					log.Trace("Output format automatically set to 'json'")
-				} else {
-					log.SetFormatter(&bbTextFormatter{})
-					log.Trace("Output format automatically set to 'text'")
+					ami.REMOTE_VARS[kvPair[0]] = kvPair[1]
 				}
 			}
 
 			// init ami options
 			ami.SetOptions(ami.Options{
-				LogLevel:             cli.LogLevel,
-				JsonLogFormat:        cli.JsonLogFormat,
-				DoNotCheckForLocator: cli.IsRemoteInstance,
+				LogLevel:      cli.LogLevel,
+				JsonLogFormat: cli.JsonLogFormat,
 			})
 
 		},
@@ -143,13 +114,22 @@ func Execute() error {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringP("path", "p", constants.DefaultBBDirectory, "Path to mavpay instance")
-	RootCmd.PersistentFlags().StringP("output-format", "o", "auto", "Sets output log format (json/text/auto)")
-	RootCmd.PersistentFlags().StringP("log-level", "l", "info", "Sets output log format (json/text/auto)")
-	RootCmd.PersistentFlags().Bool("remote-instance", false, "Tells mavbake to operate in remote-instance mode")
-	RootCmd.PersistentFlags().MarkHidden("remote-instance")
-	RootCmd.PersistentFlags().String("remote-instance-vars", "", "Tells mavbake to which remote vars to set (available only with remote-instance)")
-	RootCmd.PersistentFlags().MarkHidden("remote-instance-vars")
+	RootCmd.PersistentFlags().StringP(PATH_FLAG, "p", constants.DefaultBBDirectory, "Path to mavbake instance")
+	RootCmd.PersistentFlags().StringP(OUTPUT_FORMAT_FLAG, "o", "auto", "Sets output log format (json/text/auto)")
+	RootCmd.PersistentFlags().StringP(LOG_LEVEL_FLAG, "l", "info", "Sets log level (trace/debug/info/warn/error)")
+	RootCmd.PersistentFlags().Bool(NO_COLOR_FLAG, false, "Disable color output")
+	RootCmd.PersistentFlags().Bool(VERSION_FLAG, false, "Prints mavbake version")
+	defaultHelpFunc := RootCmd.HelpFunc()
+	RootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		v, _ := cmd.Flags().GetBool(VERSION_FLAG)
+		if v {
+			fmt.Println(constants.VERSION)
+			os.Exit(0)
+		}
+		defaultHelpFunc(cmd, args)
+	})
+	RootCmd.PersistentFlags().String(REMOTE_INSTANCE_VARS_FLAG, "", "Tells mavbake to which remote vars to set (available only with remote-instance)")
+	RootCmd.PersistentFlags().MarkHidden(REMOTE_INSTANCE_VARS_FLAG)
 	RootCmd.PersistentFlags().SetInterspersed(false)
 }
 

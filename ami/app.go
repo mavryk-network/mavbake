@@ -1,14 +1,25 @@
 package ami
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
 
 func SetupApp(appDir string, args ...string) (int, error) {
-	log.Trace("Installing '" + appDir + "...")
+	log.Trace("Installing...", "app_dir", appDir)
+	exitCode, err := Execute(appDir, "--erase-cache")
+	if err != nil {
+		log.Error("Failed to erase cache:", "error", err)
+		return exitCode, err
+	}
+	if exitCode != 0 {
+		log.Error("Failed to erase cache:", "exitcode", exitCode)
+		return exitCode, fmt.Errorf("failed to erase cache")
+	}
+
 	execArgs := make([]string, 0)
 	execArgs = append(execArgs, "setup")
 	execArgs = append(execArgs, args...)
@@ -44,16 +55,6 @@ func RemoveApp(app string, all bool, args ...string) (int, error) {
 }
 
 func IsAppInstalled(app string) bool {
-	if isRemote, locator := IsRemoteApp(app); isRemote {
-		session, err := locator.OpenAppRemoteSession()
-		if err != nil {
-			return false
-		}
-		defer session.Close()
-
-		output, exitCode, err := session.IsRemoteAppInstalled(app)
-		return err == nil && exitCode == 0 && strings.Contains(string(output), "true")
-	}
 	output, exitCode, err := ExecuteGetOutput(app, "--is-app-installed")
 	return err == nil && exitCode == 0 && strings.Contains(output, "true")
 }

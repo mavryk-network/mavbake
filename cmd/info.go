@@ -8,6 +8,7 @@ import (
 	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/util"
+	"go.alis.is/common/log"
 
 	"github.com/spf13/cobra"
 )
@@ -22,15 +23,14 @@ var infoCmd = &cobra.Command{
 			timeout = 5
 		}
 
-		result := map[string]interface{}{}
+		result := map[string]any{}
 
 		for _, v := range GetAppsBySelectionCriteria(cmd, AppSelectionCriteria{
 			InitialSelection:  InstalledApps,
 			FallbackSelection: ImplicitApps,
 			OptionCheckType:   InfoOptionCheck,
 		}) {
-
-			options := map[string]interface{}{
+			options := map[string]any{
 				"timeout": timeout,
 			}
 			for _, option := range v.GetAvailableInfoCollectionOptions() {
@@ -42,8 +42,9 @@ var infoCmd = &cobra.Command{
 				}
 			}
 
+			log.Debug("Collecting info for:", "app", v.GetId())
 			optionsJson, _ := json.Marshal(options)
-			if cli.JsonLogFormat || cli.IsRemoteInstance {
+			if cli.JsonLogFormat {
 				result[v.GetId()], _ = v.GetInfo(optionsJson)
 			} else {
 				err := v.PrintInfo(optionsJson)
@@ -51,9 +52,9 @@ var infoCmd = &cobra.Command{
 			}
 		}
 
-		if cli.JsonLogFormat || cli.IsRemoteInstance {
+		if cli.JsonLogFormat {
 			output, err := json.Marshal(result)
-			util.AssertEE(err, "Failed to serialize MavPay runtime info!", constants.ExitSerializationFailed)
+			util.AssertEE(err, "Failed to serialize MavBake runtime info!", constants.ExitSerializationFailed)
 			fmt.Println(string(output))
 			return
 		}

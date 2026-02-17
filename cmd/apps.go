@@ -17,23 +17,23 @@ import (
 var appsCmd = &cobra.Command{
 	Use:   "apps",
 	Short: "Prints BB CLI apps.",
-	Long:  "Prints MavPay CLI apps.",
+	Long:  "Prints MavBake CLI apps.",
 	Run: func(cmd *cobra.Command, args []string) {
 		appsTable := table.NewWriter()
 		appsTable.SetOutputMirror(os.Stdout)
 		appsTable.SetStyle(table.StyleLight)
 		appsTable.AppendHeader(table.Row{"App", "Installed?"}, table.RowConfig{AutoMerge: true})
 
-		result := map[string]interface{}{}
+		result := map[string]any{}
 		for _, v := range apps.All {
 			isInstalled := v.IsInstalled()
-			result[v.GetId()] = map[string]interface{}{
+			result[v.GetId()] = map[string]any{
 				"installed": isInstalled,
 			}
 			appsTable.AppendRow(table.Row{v.GetId(), isInstalled})
 		}
 
-		if cli.JsonLogFormat || cli.IsRemoteInstance {
+		if cli.JsonLogFormat {
 			data, err := json.Marshal(result)
 			util.AssertEE(err, "Failed to serialize apps info!", constants.ExitSerializationFailed)
 			fmt.Println(string(data))

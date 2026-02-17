@@ -49,7 +49,7 @@ type AppSelectionCriteria struct {
 //     ImplicitApps, or AllFallback), and option check type (NoOptionCheck or InfoOptionCheck).
 //
 // Returns:
-// A slice of base.MavPayApp instances that meet the specified selection criteria. If no apps match the initial
+// A slice of base.MavBakeApp instances that meet the specified selection criteria. If no apps match the initial
 // selection and option check criteria, the fallback selection is used to determine the final set of apps.
 //
 // Example:
@@ -63,19 +63,21 @@ type AppSelectionCriteria struct {
 //     criteria := AppSelectionCriteria{InitialSelection: AllApps, OptionCheckType: InfoOptionCheck, FallbackSelection: ImplicitApps}
 //     selectedApps := FilterAppsBySelectionCriteria(cmd, criteria)
 //     // This will return apps based on user flags, apps with 'info' options if flagged, or implicit apps as a fallback.
-func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteria) []base.MavPayApp {
-	var initialApps []base.MavPayApp
+func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteria) []base.MavBakeApp {
+	var initialApps []base.MavBakeApp
 	switch criteria.InitialSelection {
 	case InstalledApps:
-		initialApps = apps.GetInstalledApps()
+		initialApps = apps.GetInstalledApps(cmd)
 	case AllApps:
 		initialApps = apps.All
 	}
 
-	selectedApps := make([]base.MavPayApp, 0, len(initialApps))
+	selectedApps := make([]base.MavBakeApp, 0, len(initialApps))
+	anyAppSelected := false
 	for _, app := range initialApps {
 		if checked, _ := cmd.Flags().GetBool(app.GetId()); checked {
 			selectedApps = append(selectedApps, app)
+			anyAppSelected = true
 			continue
 		}
 
@@ -99,19 +101,23 @@ func GetAppsBySelectionCriteria(cmd *cobra.Command, criteria AppSelectionCriteri
 			continue
 		}
 	}
+	if !anyAppSelected && criteria.InitialSelection == InstalledApps {
+		// If no apps were selected and the initial selection was installed apps, we should return all installed apps.
+		selectedApps = initialApps
+	}
 
 	if len(selectedApps) == 0 {
-		var fallbackApps []base.MavPayApp
+		var fallbackApps []base.MavBakeApp
 		switch criteria.FallbackSelection {
 		case NoFallback:
-			return []base.MavPayApp{}
+			return []base.MavBakeApp{}
 		case ImplicitApps:
 			fallbackApps = apps.Implicit
 		case AllFallback:
 			fallbackApps = apps.All
 		}
 
-		selectedApps = lo.Filter(initialApps, func(app base.MavPayApp, _ int) bool {
+		selectedApps = lo.Filter(initialApps, func(app base.MavBakeApp, _ int) bool {
 			return slices.Contains(fallbackApps, app)
 		})
 	}

@@ -1,17 +1,18 @@
 package system
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
 	"net"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/util"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
@@ -35,13 +36,8 @@ type SshCommandResult struct {
 }
 
 func promptForPassword(reason string, failureMsg string) []byte {
-	pw := ""
-	prompt := &survey.Password{
-		Message: reason,
-	}
-	err := survey.AskOne(prompt, &pw)
+	pw := util.RequirePasswordE(reason, failureMsg, constants.ExitInternalError)
 	// bytepw, err := term.ReadPassword(int(syscall.Stdin))
-	util.AssertE(err, failureMsg)
 	return []byte(pw)
 }
 
@@ -194,64 +190,60 @@ func RunPipedSshCommand(client *ssh.Client, cmd string, env *map[string]string) 
 	}
 }
 
-// func SSHCopyFile(srcPath, dstPath string) error {
-// 	config := &ssh.ClientConfig{
-// 		User: "user",
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password("pass"),
-// 		},
-// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-// 	}
-// 	fmt.Println()
-// 	client, _ := ssh.Dial("tcp", "remotehost:22", config)
-// 	defer client.Close()
+func RunSshCommandWithOutputChannel(client *ssh.Client, cmd string, env *map[string]string, outputChannel chan<- string) *SshCommandResult {
+	session, err := client.NewSession()
+	if err != nil {
+		return &SshCommandResult{
+			Error:    err,
+			ExitCode: -1,
+		}
+	}
+	defer session.Close()
+	stdout, err := session.StdoutPipe()
+	if err != nil {
+		return &SshCommandResult{Error: err, ExitCode: -1}
+	}
+	stderr, err := session.StderrPipe()
+	if err != nil {
+		return &SshCommandResult{Error: err, ExitCode: -1}
+	}
 
-// 	// open an SFTP session over an existing ssh connection.
-// 	sftp, err := sftp.NewClient(client)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer sftp.Close()
+	var wg sync.WaitGroup
+	// Increment the WaitGroup counter for each goroutine
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		// feed the output channel with the output of the command
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			// Send each line of output to the channel
+			outputChannel <- scanner.Text()
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		// feed the output channel with the output of the command
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			// Send each line of output to the channel
+			outputChannel <- scanner.Text()
+		}
+	}()
 
-// 	// Open the source file
-// 	srcFile, err := os.Open(srcPath)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer srcFile.Close()
+	cmd = buildUpEnv(env) + cmd
 
-// 	// Create the destination file
-// 	dstFile, err := sftp.Create(dstPath)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer dstFile.Close()
+	exitCode := 0
 
-// 	// write to file
-// 	if _, err := dstFile.ReadFrom(srcFile); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-/*
-generate ssh key
-inject ssh key to server under --user
-(add user if needed)
-setenv
-get remote platform
-download target platform locally
-transfer over ssh
-
-setup:
-- check whether key or password
-- test connectivity
-- --remote-auth=pass/key
-- --remote-node=user@addr
-
-- --remote-elevate=su 	(REMOTE_SU_USER, REMOTE_SU_PASS)
-- --remote-elevate=sudo (REMOTE_SUDO_PASS)
-- --remote-elevate=none (DEFAULT, connecting as root)
-
-
-*/
+	err = session.Run(cmd)
+	if err != nil {
+		exitCode = -1
+		if exitErr, ok := err.(*ssh.ExitError); ok {
+			exitCode = exitErr.ExitStatus()
+		}
+	}
+	wg.Wait()
+	return &SshCommandResult{
+		Error:    err,
+		ExitCode: exitCode,
+	}
+}

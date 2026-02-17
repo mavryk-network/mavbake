@@ -7,25 +7,20 @@ import (
 	"github.com/mavryk-network/mavbake/apps/base"
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/util"
-
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
-
-func (app *Signer) GetSetupKind() string {
-	return base.MergingSetupKind
-}
 
 func (app *Signer) Setup(ctx *base.SetupContext, args ...string) (int, error) {
 	appDef, err := base.GenerateConfiguration(app.GetAmiTemplate(ctx), ctx)
 	if err != nil {
-		log.Warn(err)
+		return -1, fmt.Errorf("failed to generate configuration - %s", err.Error())
 	}
 
 	oldAppDef, err := ami.ReadAppDefinition(app.GetPath(), constants.DefaultAppJsonName)
 	if oldAppDef != nil && err == nil {
-		if oldConfiguration, ok := (*oldAppDef)["configuration"].(map[string]interface{}); ok {
+		if oldConfiguration, ok := oldAppDef["configuration"].(map[string]any); ok {
 			log.Info("Found old configuration. Merging...")
-			appDef["configuration"] = util.MergeMaps(oldConfiguration, appDef["configuration"].(map[string]interface{}), true)
+			appDef["configuration"] = util.MergeMapsDeep(oldConfiguration, appDef["configuration"].(map[string]any), true)
 		}
 	}
 

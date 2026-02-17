@@ -1,6 +1,13 @@
 package util
 
-import "github.com/spf13/cobra"
+import (
+	"os"
+	"slices"
+
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+)
 
 func GetCommandStringFlag(cmd *cobra.Command, flag string) string {
 	value, err := cmd.Flags().GetString(flag)
@@ -38,4 +45,27 @@ func GetCommandStringFlagSD(cmd *cobra.Command, flag string, def string) string 
 func GetCommandBoolFlagS(cmd *cobra.Command, flag string) bool {
 	value, _ := cmd.Flags().GetBool(flag)
 	return value
+}
+
+// GetCommandArgs retrieves the arguments specified after the command.
+// It returns nil if no arguments are provided.
+func GetCommandArgs(cmd *cobra.Command) []string {
+	args := os.Args
+	for i, arg := range os.Args {
+		if arg == cmd.Use {
+			return args[i+1:]
+		}
+	}
+
+	return nil
+}
+
+func RemoveCmdFlags(cmd *cobra.Command, args []string) []string {
+	flags := []string{}
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		flags = append(flags, "--"+f.Name)
+	})
+	return lo.Filter(args, func(arg string, _ int) bool {
+		return !slices.Contains(flags, arg)
+	})
 }

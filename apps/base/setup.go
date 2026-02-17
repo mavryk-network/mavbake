@@ -19,25 +19,24 @@ type SetupContext struct {
 	// remote info
 	Remote                string
 	RemoteAuth            string
-	RemotePath            string
-	RemoteUser            string // user to run bb under on remote
-	RemoteElevate         ami.ERemoteElevationKind
-	RemoteElevateUser     string // user to elevate to on remote
+	RemoteElevate         ami.RemoteElevationKind
 	RemoteElevatePassword string
-	OneTimeElevate        bool
 	RemoteReset           bool
+
+	Dal bool
 }
 
-func (ctx *SetupContext) ToRemoteConfiguration(app MavPayApp) *ami.RemoteConfiguration {
+func (ctx *SetupContext) ToRemoteConfiguration(app MavBakeApp) *ami.RemoteConfiguration {
 	connectionDetails := system.GetRemoteConnectionDetails(ctx.Remote)
 
 	return &ami.RemoteConfiguration{
 		ElevationCredentialsDirectory: app.GetPath(),
 		App:                           app.GetId(),
 		Username:                      connectionDetails.Username,
+		LocalUsername:                 ctx.User,
 		Host:                          connectionDetails.Host,
 		Port:                          connectionDetails.Port,
-		InstancePath:                  ctx.RemotePath,
+		InstancePath:                  constants.DefaultBBDirectory,
 		Elevate:                       ctx.RemoteElevate,
 		PrivateKey:                    path.Join(app.GetPath(), constants.PrivateKeyFile),
 		PublicKey:                     path.Join(app.GetPath(), constants.PublicKeyFile),
@@ -49,8 +48,8 @@ func (ctx *SetupContext) ToRemoteElevateCredentials() *ami.RemoteElevateCredenti
 		return nil
 	}
 	return &ami.RemoteElevateCredentials{
-		Kind:     ami.ERemoteElevationKind(ctx.RemoteElevate),
-		User:     ctx.RemoteElevateUser,
+		Kind: ami.RemoteElevationKind(ctx.RemoteElevate),
+		// User:     ctx.RemoteElevateUser,
 		Password: ctx.RemoteElevatePassword,
 	}
 }

@@ -3,13 +3,18 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
+	"github.com/samber/lo"
 	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/apps/base"
 	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/system"
 	"github.com/mavryk-network/mavbake/util"
+	"go.alis.is/common/log"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -20,23 +25,71 @@ var removeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		system.RequireElevatedUser()
 
-		shouldRemoveAll, _ := cmd.Flags().GetBool("all")
+		shouldRemoveAll := util.GetCommandBoolFlagS(cmd, "all")
+		force := util.GetCommandBoolFlagS(cmd, "force")
+		skipConfirm := util.GetCommandBoolFlagS(cmd, "confirm")
 
 		selectedApps := GetAppsBySelectionCriteria(cmd, AppSelectionCriteria{
-			InitialSelection:  InstalledApps,
+			InitialSelection:  AllApps,
 			FallbackSelection: AllFallback,
 		})
-		removingAllInstalled := len(selectedApps) == len(apps.GetInstalledApps())
 
-		for _, v := range selectedApps {
-			exitCode, err := v.Remove(shouldRemoveAll)
-			util.AssertEE(err, fmt.Sprintf("Failed to remove %s!", v.GetId()), exitCode)
+		removingAllInstalled := lo.EveryBy(apps.GetInstalledApps(cmd), func(installedApp base.MavBakeApp) bool {
+			return slices.Contains(selectedApps, installedApp)
+		})
+
+		isUserConfirmed := skipConfirm
+		if system.IsTty() && !skipConfirm {
+			appsToRemove := strings.Join(lo.Map(selectedApps, func(app base.MavBakeApp, _ int) string {
+				return strings.ToUpper(app.GetId())
+			}), ", ")
+			var prompt string
+			fmt.Println("")
+			fmt.Println("!!!!!! WARNING !!!!!!")
+			fmt.Println("")
+			switch {
+			case removingAllInstalled && shouldRemoveAll:
+				prompt = fmt.Sprintf("Are you sure you want to remove all files related to mavbake instance - %s?", cli.BBdir)
+			case shouldRemoveAll:
+				prompt = fmt.Sprintf("Are you sure you want to remove all files related to %s (%s)?", appsToRemove, cli.BBdir)
+			default:
+				prompt = fmt.Sprintf("Are you sure you want to remove %s data (%s)?", appsToRemove, cli.BBdir)
+			}
+			isUserConfirmed = util.Confirm(prompt, false, "Failed to confirm removal!")
+			if isUserConfirmed {
+				isUserConfirmed = false
+				abort := false
+				fmt.Println("")
+				prompt = "This operation is irreversible. Do you want to abort?"
+				abort = util.ConfirmWithCancelValue(prompt, false, true, "Failed to confirm removal abort!")
+				isUserConfirmed = !abort
+			}
+		}
+		if !isUserConfirmed {
+			log.Info("Aborting removal.")
+			os.Exit(constants.ExitOperationCanceled)
+		}
+		removeArgs := []string{}
+		if force {
+			removeArgs = append(removeArgs, "--force")
+		}
+
+		for _, app := range selectedApps {
+			serviceInfo, err := app.GetServiceInfo()
+			if err == nil && !force {
+				for serviceName, service := range serviceInfo {
+					util.AssertBE(service.Status != "running", fmt.Sprintf("%s service %s is running. Please stop the application first or use --force to override", app.GetId(), serviceName), constants.ExitUserInvalidInput)
+				}
+			}
+
+			exitCode, err := app.Remove(shouldRemoveAll, removeArgs...)
+			util.AssertEE(err, fmt.Sprintf("Failed to remove %s!", app.GetId()), exitCode)
 		}
 
 		if removingAllInstalled && shouldRemoveAll {
 			os.RemoveAll(cli.BBdir)
 		}
-		log.Info("BB removal succesfull")
+		log.Info("mavbake removal successful")
 	},
 }
 
@@ -45,5 +98,7 @@ func init() {
 		removeCmd.Flags().Bool(v.GetId(), false, fmt.Sprintf("Removes %s.", v.GetId()))
 	}
 	removeCmd.Flags().BoolP("all", "a", false, "Removes all files related to BB instance.")
+	removeCmd.Flags().Bool("force", false, "Forces removal even when there are no package specific removal routines.")
+	removeCmd.Flags().Bool("confirm", false, "Skips confirmation prompts.")
 	RootCmd.AddCommand(removeCmd)
 }

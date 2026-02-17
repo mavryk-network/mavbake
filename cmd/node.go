@@ -4,15 +4,18 @@ import (
 	"os"
 
 	"github.com/mavryk-network/mavbake/apps"
+	"github.com/mavryk-network/mavbake/util"
 
 	"github.com/spf13/cobra"
 )
 
 var nodeCmd = &cobra.Command{
-	Use:   "node",
-	Short: "Passes args through to node app.",
-	Long:  `Passes args through to node app.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Use:                "node",
+	Short:              "Passes args through to node app.",
+	Long:               `Passes args through to node app.`,
+	DisableFlagParsing: true,
+	Run: func(cmd *cobra.Command, _ []string) {
+		args := util.GetCommandArgs(cmd)
 		if len(args) > 0 && args[0] == "-" {
 			args[0] = "node"
 		}

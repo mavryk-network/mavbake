@@ -6,25 +6,26 @@ import (
 	"os/user"
 	"time"
 
+	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/util"
-
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
 
-func GetCurrentUser() *user.User {
+func getCurrentUser() *user.User {
 	user, err := user.Current()
 	util.AssertEE(err, "Failed to get current user!", constants.ExitInvalidUser)
 	return user
 }
 
-func IsElevated() bool {
-	user := GetCurrentUser()
+func isElevated() bool {
+	user := getCurrentUser()
 	return user.Uid == "0"
 }
 
 func RequireElevatedUser(injectArgs ...string) {
-	if IsElevated() {
+	cli.ElevationRequired = true
+	if isElevated() {
 		log.Trace("Process already elevated...")
 		return
 	} else {
@@ -81,7 +82,10 @@ func RequireElevatedUser(injectArgs ...string) {
 		os.Exit(constants.ExitNotSupported)
 	}
 	// other options?
-	util.AssertBE(IsTty(), "No self elevation method available!", constants.ExitElevationRequired)
+	if !IsTty() {
+		log.Debug("No self elevation method available!")
+		os.Exit(constants.ExitElevationRequired)
+	}
 	_, err := exec.LookPath("sudo")
 	util.AssertEE(err, "Sudo not found! Please run process as root manually.", constants.ExitElevationRequired)
 

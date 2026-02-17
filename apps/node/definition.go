@@ -1,12 +1,33 @@
 package node
 
 import (
+	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps/base"
 )
 
-func (app *Node) LoadAppDefinition() (map[string]interface{}, string, error) {
+func (app *Node) LoadAppDefinition() (map[string]any, string, error) {
 	return base.LoadAppDefinition(app)
 }
-func (app *Node) LoadAppConfiguration() (map[string]interface{}, error) {
+
+func (app *Node) LoadAppConfiguration() (map[string]any, error) {
 	return base.LoadAppConfiguration(app)
+}
+
+func (app *Node) GetActiveModel() (map[string]any, error) {
+	return base.GetActiveModel(app)
+}
+
+func (app *Node) UpdateDalEndpoint(endpoint string) error {
+	config, err := app.LoadAppConfiguration()
+	if err != nil {
+		return err
+	}
+
+	if endpoint != "" {
+		config["DAL_NODE"] = endpoint
+	} else {
+		delete(config, "DAL_NODE")
+	}
+
+	return ami.UpdateAppConfiguration(app.GetPath(), config)
 }

@@ -3,7 +3,7 @@ package util
 import (
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
 
 func AssertSB(check bool, msg string) {
@@ -28,20 +28,20 @@ func AssertBE(check bool, msg string, exitCode int) {
 
 func AssertSE(err error, msg string) {
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error(msg)
+		log.Error(msg, "error", err)
 	}
 }
 
 func AssertE(err error, msg string) {
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error(msg)
+		log.Error(msg, "error", err)
 		os.Exit(-1)
 	}
 }
 
 func AssertEE(err error, msg string, exitCode int) {
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error(msg)
+		log.Error(msg, "error", err)
 		os.Exit(exitCode)
 	}
 }

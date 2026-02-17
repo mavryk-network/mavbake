@@ -5,11 +5,10 @@ import (
 
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps"
-	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/system"
 	"github.com/mavryk-network/mavbake/util"
+	"go.alis.is/common/log"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -24,23 +23,26 @@ var upgradeCmd = &cobra.Command{
 			UpgradeStorage: util.GetCommandBoolFlagS(cmd, UpgradeStorage),
 		}
 
-		if util.GetCommandBoolFlagS(cmd, SetupAmi) || cli.IsRemoteInstance {
+		if !util.GetCommandBoolFlagS(cmd, SkipAmiSetup) {
 			// install ami by default in case of remote instance
-			exitCode, err := ami.Install()
+			log.Info("Upgrading ami and eli...")
+			exitCode, err := ami.Install(true)
 			util.AssertEE(err, "Failed to install ami and eli!", exitCode)
 		}
 
 		exitCode, err := ami.EraseCache()
 		util.AssertEE(err, "Failed to erase ami cache!", exitCode)
 
-		for _, v := range GetAppsBySelectionCriteria(cmd, AppSelectionCriteria{
+		appsToUpgrade := GetAppsBySelectionCriteria(cmd, AppSelectionCriteria{
 			InitialSelection:  InstalledApps,
 			FallbackSelection: ImplicitApps,
-		}) {
+		})
+
+		for _, v := range appsToUpgrade {
 			exitCode, err := v.Upgrade(upgradeContext)
 			util.AssertEE(err, fmt.Sprintf("Failed to upgrade '%s'!", v.GetId()), exitCode)
 		}
-		log.Info("Upgrade succesful.")
+		log.Info("Upgrade successful.")
 	},
 }
 
@@ -50,6 +52,6 @@ func init() {
 	}
 
 	upgradeCmd.Flags().BoolP(UpgradeStorage, "s", false, "Upgrade storage during the upgrade.")
-	upgradeCmd.Flags().BoolP(SetupAmi, "a", false, "Install latest ami during the BB upgrade.")
+	upgradeCmd.Flags().Bool(SkipAmiSetup, false, "Skip ami upgrade")
 	RootCmd.AddCommand(upgradeCmd)
 }

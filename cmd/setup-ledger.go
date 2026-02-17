@@ -2,22 +2,21 @@ package cmd
 
 import (
 	"fmt"
-	"path"
+	"time"
 
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps"
-	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/system"
 	"github.com/mavryk-network/mavbake/util"
+	"go.alis.is/common/log"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var (
-	platform  *BoolStringCombinedFlag
-	importKey *BoolStringCombinedFlag
+	ledgerPlatformFlag  *BoolStringCombinedFlag
+	ledgerImportKeyFlag *BoolStringCombinedFlag
 )
 
 var setupLedgerCmd = &cobra.Command{
@@ -33,7 +32,9 @@ var setupLedgerCmd = &cobra.Command{
 		keyAlias, _ := cmd.Flags().GetString("key-alias")
 		protocol, _ := cmd.Flags().GetString("protocol")
 
-		if (shouldOperateOnSigner || !shouldOperateOnNode) && !cli.IsRemoteInstance && apps.Signer.IsInstalled() {
+		isAnySelected := shouldOperateOnSigner || shouldOperateOnNode
+
+		if (shouldOperateOnSigner || !isAnySelected) && apps.Signer.IsInstalled() {
 			log.Info("setting up ledger for signer...")
 			wasRunning, _ := apps.Signer.IsServiceStatus(constants.SignerAppServiceId, "running")
 			if wasRunning {
@@ -42,9 +43,9 @@ var setupLedgerCmd = &cobra.Command{
 			}
 
 			amiArgs := []string{"setup-ledger"}
-			if platform.HasValue() {
-				amiArgs = append(amiArgs, "--platform="+platform.String())
-			} else if platform.IsTrue() {
+			if ledgerPlatformFlag.HasValue() {
+				amiArgs = append(amiArgs, "--platform="+ledgerPlatformFlag.String())
+			} else if ledgerPlatformFlag.IsTrue() {
 				amiArgs = append(amiArgs, "--platform")
 			}
 
@@ -53,13 +54,13 @@ var setupLedgerCmd = &cobra.Command{
 				amiArgs = append(amiArgs, "--no-udev")
 			}
 
-			if protocol == "" {
+			if protocol != "" {
 				amiArgs = append(amiArgs, fmt.Sprintf("--protocol=%s", protocol))
 			}
 
-			if importKey.HasValue() {
-				amiArgs = append(amiArgs, "--import-key="+importKey.String())
-			} else if importKey.IsTrue() {
+			if ledgerImportKeyFlag.HasValue() {
+				amiArgs = append(amiArgs, "--import-key="+ledgerImportKeyFlag.String())
+			} else if ledgerImportKeyFlag.IsTrue() {
 				amiArgs = append(amiArgs, "--import-key")
 			}
 
@@ -91,30 +92,32 @@ var setupLedgerCmd = &cobra.Command{
 			exitCode, err := apps.Signer.Execute(amiArgs...)
 			util.AssertEE(err, "Failed to import key to signer!", exitCode)
 
-			signerDef, _, err := apps.Signer.LoadAppDefinition()
-			util.AssertEE(err, "Failed to load signer definition!", constants.ExitInvalidUser)
-			signerUser, ok := signerDef["user"].(string)
-
-			util.AssertBE(ok, "Failed to get username from signer!", constants.ExitInvalidUser)
-			util.ChownR(signerUser, path.Join(apps.Signer.GetPath(), "data"))
-
 			if wasRunning {
 				apps.Signer.Start()
 			}
 		}
 
-		if (shouldOperateOnNode || !shouldOperateOnSigner) && apps.Node.IsInstalled() {
-			if importKey.IsTrue() { // node only imports key
+		if (shouldOperateOnNode || !isAnySelected) && apps.Node.IsInstalled() {
+			if ledgerImportKeyFlag.IsTrue() { // node only imports key
 				var wasSignerRunning bool
-				if !cli.IsRemoteInstance {
-					log.Info("Importing key to the node...")
-					wasSignerRunning, _ = apps.Signer.IsServiceStatus(constants.SignerAppServiceId, "running")
+
+				log.Info("Importing key to the node...")
+				wasSignerRunning, _ = apps.Signer.IsServiceStatus(constants.SignerAppServiceId, "running")
+				if !wasSignerRunning {
 					exitCode, err := apps.Signer.Start()
 					util.AssertEE(err, "Failed to start signer!", exitCode)
 
-					isSignerRunning, _ := apps.Signer.IsServiceStatus(constants.SignerAppServiceId, "running")
-					util.AssertBE(isSignerRunning, "Signer is not running. Please start signer services.", constants.ExitSignerNotOperational)
+					// Sleep 2 seconds to allow the signer service to start up
+					time.Sleep(3 * time.Second)
 				}
+
+				isSignerRunning, _ := apps.Signer.IsServiceStatus(constants.SignerAppServiceId, "running")
+				util.AssertBE(isSignerRunning, "Signer is not running. Please start signer services.", constants.ExitSignerNotOperational)
+				defer func() {
+					if !wasSignerRunning {
+						apps.Signer.Stop()
+					}
+				}()
 
 				bakerAddr, exitCode, err := apps.Signer.GetKeyHash(keyAlias)
 				util.AssertEE(err, "Failed to get baker key hash!", exitCode)
@@ -126,27 +129,16 @@ var setupLedgerCmd = &cobra.Command{
 				amiArgs = append(amiArgs, fmt.Sprintf("--alias=%s", keyAlias))
 				exitCode, err = apps.Node.Execute(amiArgs...)
 				util.AssertEE(err, "Failed to import key to node!", exitCode)
-
-				if isRemote := apps.Node.IsRemoteApp(); !isRemote {
-					nodeDef, _, err := apps.Node.LoadAppDefinition()
-					util.AssertEE(err, "Failed to load node definition!", constants.ExitAppConfigurationLoadFailed)
-					nodeUser, ok := nodeDef["user"].(string)
-					util.AssertBE(ok, "Failed to get username from node!", constants.ExitInvalidUser)
-					util.ChownR(nodeUser, path.Join(apps.Node.GetPath(), "data"))
-				}
-				if !wasSignerRunning && !cli.IsRemoteInstance {
-					apps.Signer.Stop()
-				}
 			}
 		}
 	},
 }
 
 func init() {
-	setupLedgerCmd.Flags().BoolP("node", "n", false, "Import key to node (affects import-key only)")
-	setupLedgerCmd.Flags().BoolP("signer", "s", false, "Import key to signer (affects import-key only)")
+	setupLedgerCmd.Flags().Bool("node", false, "Import key to node (affects import-key only)")
+	setupLedgerCmd.Flags().Bool("signer", false, "Import key to signer (affects import-key only)")
 
-	importKey = addCombinedFlag(setupLedgerCmd, "import-key", "", "Import key from ledger (optionally specify derivation path)")
+	ledgerImportKeyFlag = addCombinedFlag(setupLedgerCmd, "import-key", "", "Import key from ledger (optionally specify derivation path)")
 	setupLedgerCmd.Flags().String("ledger-id", "", "Ledger id to import key from (affects import-key only)")
 	setupLedgerCmd.Flags().String("key-alias", "baker", "Alias ofkey to be imported")
 
@@ -156,7 +148,7 @@ func init() {
 
 	setupLedgerCmd.Flags().String("protocol", "", "Protocol hash to be used during setup-ledger.")
 
-	platform = addCombinedFlag(setupLedgerCmd, "platform", "", "Prepare platform for ledger (optionally specify platform to override)")
+	ledgerPlatformFlag = addCombinedFlag(setupLedgerCmd, "platform", "", "Prepare platform for ledger (optionally specify platform to override)")
 	setupLedgerCmd.Flags().String("no-udev", "", "Skip udev rules installation. (linux only)")
 
 	setupLedgerCmd.Flags().BoolP("force", "f", false, "Force key import. (overwrites existing)")
