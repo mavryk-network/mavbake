@@ -8,8 +8,9 @@ import (
 	"runtime"
 	"strconv"
 
+	"go.alis.is/common/log"
+
 	"github.com/mavryk-network/mavbake/constants"
-	log "github.com/sirupsen/logrus"
 )
 
 func ChownRS(username string, targetPath string) (int, error) {
@@ -32,7 +33,7 @@ func ChownRS(username string, targetPath string) (int, error) {
 			if err == nil {
 				err = os.Chown(path, uid, gid)
 				if err != nil {
-					log.Warn("Failed to change ownership of '" + path + "' (" + err.Error() + ")!")
+					log.Warn("Failed to change ownership:", "path", path, "error", err.Error())
 				}
 			}
 			return err

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TMP_NAME="/tmp/$(head -n 1 -c 32 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32)"
+TMP_NAME="./$(head -c 24 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' | head -c 32)"
 PRERELEASE=false
 if [ "$1" = "--prerelease" ]; then
 	PRERELEASE=true
@@ -29,35 +29,68 @@ else
 	fi
 fi
 
-if mavbake version | grep "$LATEST"; then
-	echo "Latest mavbake already available."
+if mavbake version 2>/dev/null | grep "$LATEST" >/dev/null 2>&1; then
+	echo "latest mavbake already available"
 	exit 0
 fi
 
 PLATFORM=$(uname -m)
+UNAME=$(uname -s | tr '[:upper:]' '[:lower:]')
+OS=linux
+if [ "$UNAME" = "darwin" ]; then
+	mkdir -p /usr/local/bin
+	OS=macos
+fi
+
 if [ "$PLATFORM" = "x86_64" ]; then
 	PLATFORM="amd64"
-elif [ "$PLATFORM" = "aarch64" ]; then
+elif [ "$PLATFORM" = "aarch64" ] || [ "$PLATFORM" = "arm64" ]; then
 	PLATFORM="arm64"
 else
-	echo "Unsupported platform: $PLATFORM" 1>&2
+	echo "unsupported platform: $PLATFORM" 1>&2
 	exit 1
 fi
 
-if [ "$PRERELEASE" = true ]; then
-	echo "Downloading latest mavbake prerelease for $PLATFORM..."
+BIN="mavbake"
+rm -f "/usr/local/bin/$BIN"
+rm -f "/usr/bin/$BIN"
+rm -f "/bin/$BIN"
+rm -f "/usr/local/sbin/$BIN"
+rm -f "/usr/sbin/$BIN"
+rm -f "/sbin/$BIN"
+# check destination folder
+if [ -w "/usr/local/bin" ]; then
+    DESTINATION="/usr/local/bin/$BIN"
+elif [ -w "/usr/local/sbin" ]; then
+    DESTINATION="/usr/local/sbin/$BIN"
+elif [ -w "/usr/bin" ]; then
+    DESTINATION="/usr/bin/$BIN"
+elif [ -w "/usr/sbin" ]; then
+    DESTINATION="/usr/sbin/$BIN"
+elif [ -w "/bin" ]; then
+    DESTINATION="/bin/$BIN"
+elif [ -w "/sbin" ]; then
+    DESTINATION="/sbin/$BIN"
 else
-	echo "Downloading mavbake-linux-$PLATFORM $LATEST..."
+    echo "No writable system binary directory found, installing locally."
+    DESTINATION="./$BIN"
 fi
 
-if "$@" "https://github.com/mavryk-network/mavbake/releases/download/$LATEST/mavbake-linux-$PLATFORM" &&
-	mv "$TMP_NAME" /usr/sbin/mavbake &&
-	chmod +x /usr/sbin/mavbake; then
+if [ "$PRERELEASE" = true ]; then
+	echo "downloading latest mavbake prerelease for $PLATFORM..."
+else
+	echo "downloading mavbake-$OS-$PLATFORM $LATEST..."
+fi
+
+if "$@" "https://github.com/mavryk-network/mavbake/releases/download/$LATEST/mavbake-$OS-$PLATFORM" &&
+	mv "$TMP_NAME" "$DESTINATION" &&
+	chmod +x "$DESTINATION"; then
 	if [ "$1" = "--prerelease" ]; then
-		echo "Latest mavbake prerelease for $PLATFORM successfully installed."
+		echo "latest mavbake prerelease for $PLATFORM successfully installed"
 	else
-		echo "mavbake $LATEST for $PLATFORM successfully installed."
+		echo "mavbake $LATEST for $PLATFORM successfully installed"
 	fi
+	hash -r 2>/dev/null || true
 else
 	echo "mavbake installation failed!" 1>&2
 	exit 1

@@ -9,18 +9,40 @@ import (
 
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps/base"
-	"github.com/mavryk-network/mavbake/constants"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
+type Info struct {
+	base.InfoBase
+	Services map[string]base.AmiServiceInfo `json:"services"`
+	Type     string                         `json:"type"`
+	Version  string                         `json:"version"`
+}
+
+func (i *Info) UnmarshalJSON(data []byte) error {
+	type Alias Info
+	aux := &struct {
+		Services json.RawMessage `json:"services"`
+		*Alias
+	}{
+		Alias: (*Alias)(i),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := base.UnmarshalIfNotEmptyArray(aux.Services, &i.Services); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type InfoCollectionOptions struct {
 	Timeout  int
-	Chain    bool
-	Simple   bool
 	Services bool
-	Voting   bool
 }
 
 func (infoCollectionOptions *InfoCollectionOptions) toAmiArgs() []string {
@@ -52,17 +74,24 @@ func (app *Mavpay) GetAvailableInfoCollectionOptions() []base.AmiInfoCollectionO
 	return result
 }
 
-func (app *Mavpay) GetInfoFromOptions(options *InfoCollectionOptions) (map[string]interface{}, error) {
+func (app *Mavpay) GetInfoFromOptions(options *InfoCollectionOptions) (Info, error) {
 	args := options.toAmiArgs()
 	infoBytes, _, err := ami.ExecuteInfo(app.GetPath(), args...)
 	if err != nil {
-		return base.GenerateFailedInfo(string(infoBytes), err), fmt.Errorf("failed to collect app info (%s)", err.Error())
+		failedInfo := Info{
+			InfoBase: base.GenerateFailedInfo(string(infoBytes), err),
+		}
+		return failedInfo, fmt.Errorf("failed to collect app info (%s)", err.Error())
 	}
 
-	return base.ParseInfoOutput(infoBytes)
+	info, err := base.ParseInfoOutput[Info](infoBytes)
+	if err != nil {
+		return Info{InfoBase: base.GenerateFailedInfo(string(infoBytes), err)}, err
+	}
+	return info, nil
 }
 
-func (app *Mavpay) GetInfo(optionsJson []byte) (map[string]interface{}, error) {
+func (app *Mavpay) GetInfo(optionsJson []byte) (any, error) {
 	return app.GetInfoFromOptions(app.getInfoCollectionOptions(optionsJson))
 }
 
@@ -74,26 +103,25 @@ func (app *Mavpay) GetServiceInfo() (map[string]base.AmiServiceInfo, error) {
 		return result, err
 	}
 
-	jsonString, _ := json.Marshal(info["services"])
-	json.Unmarshal(jsonString, &result)
-	return result, err
+	return info.Services, err
 }
 
 func (app *Mavpay) IsServiceStatus(id string, status string) (bool, error) {
-	serviceInfo, err := app.GetServiceInfo()
-	if err != nil {
-		return false, err
-	}
-	if service, ok := serviceInfo[constants.NodeAppServiceId]; ok && service.Status == status {
-		return true, nil
-	}
-	return false, nil
+	return base.IsServiceStatus(app, id, status)
+}
+
+func (app *Mavpay) IsAnyServiceStatus(status string) (bool, error) {
+	return base.IsAnyServiceStatus(app, status)
 }
 
 func (app *Mavpay) PrintInfo(optionsJson []byte) error {
-	mavpayInfo, err := app.GetInfo(optionsJson)
+	mavpayInfoRaw, err := app.GetInfo(optionsJson)
 	if err != nil {
 		return err
+	}
+	mavpayInfo, ok := mavpayInfoRaw.(Info)
+	if !ok {
+		return fmt.Errorf("invalid mavpay info type")
 	}
 
 	mavpayTable := table.NewWriter()
@@ -102,8 +130,8 @@ func (app *Mavpay) PrintInfo(optionsJson []byte) error {
 	mavpayTable.SetOutputMirror(os.Stdout)
 	mavpayTable.AppendHeader(table.Row{app.GetLabel(), app.GetLabel()}, table.RowConfig{AutoMerge: true})
 
-	mavpayTable.AppendRow(table.Row{"Status", fmt.Sprint(mavpayInfo["status"])})
-	mavpayTable.AppendRow(table.Row{"Status Level", fmt.Sprint(mavpayInfo["level"])})
+	mavpayTable.AppendRow(table.Row{"Status", mavpayInfo.Status})
+	mavpayTable.AppendRow(table.Row{"Status Level", mavpayInfo.Level})
 
 	mavpayTable.AppendSeparator()
 	mavpayTable.AppendRow(table.Row{"Services", "Services"}, table.RowConfig{AutoMerge: true})
@@ -111,11 +139,7 @@ func (app *Mavpay) PrintInfo(optionsJson []byte) error {
 	mavpayTable.AppendRow(table.Row{"Name", "Status (Started)"})
 	mavpayTable.AppendSeparator()
 
-	var services map[string]base.AmiServiceInfo
-	jsonString, _ := json.Marshal(mavpayInfo["services"])
-	json.Unmarshal(jsonString, &services)
-
-	for k, v := range services {
+	for k, v := range mavpayInfo.Services {
 		mavpayTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v)", v.Status, v.Started)})
 	}
 

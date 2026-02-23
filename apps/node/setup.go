@@ -6,96 +6,111 @@ import (
 
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps/base"
-	"github.com/mavryk-network/mavbake/cli"
+	"github.com/mavryk-network/mavbake/apps/signer"
 	"github.com/mavryk-network/mavbake/constants"
 	"github.com/mavryk-network/mavbake/util"
-
-	"github.com/AlecAivazis/survey/v2"
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
 
 func promptReuseElevateCredentials() bool {
-	var response bool
-	prompt := &survey.Confirm{
-		Message: "Do you want to reuse existing elevate credentials?",
-	}
-	err := survey.AskOne(prompt, &response)
-	if err != nil {
-		return false
-	}
-	return response
-}
-
-func (app *Node) GetSetupKind() string {
-	return base.MergingSetupKind
+	return util.Confirm("Do you want to reuse existing elevate credentials?", false, "Failed to confirm reuse of elevate credentials!")
 }
 
 func (app *Node) Setup(ctx *base.SetupContext, args ...string) (int, error) {
-	if isRemote, _ := ami.IsRemoteApp(app.GetPath()); isRemote {
-		log.Warn("Found remote node locator. Setup will run on remote.")
-	}
-	if !cli.IsRemoteInstance {
-		if ctx.Remote != "" {
-			locator, err := ami.LoadRemoteLocator(app.GetPath())
-			config := ctx.ToRemoteConfiguration(app)
-			useExistingCredentials := false
-			if err == nil && !ctx.RemoteReset {
-				log.Info("Old remoTe locator found. Merging...")
-				config.PopulateWith(locator)
-				useExistingCredentials = promptReuseElevateCredentials()
-			}
-			err = os.MkdirAll(app.GetPath(), os.ModePerm)
-			if err != nil {
-				return -1, fmt.Errorf("failed to create directory structure for remote node locator - %s", err.Error())
-			}
-			if !useExistingCredentials {
-				remoteElevatePassword := ""
-				prompt := &survey.Password{
-					Message: "Enter password to use for elevation on remote:",
-				}
-				err = survey.AskOne(prompt, &remoteElevatePassword)
-				util.AssertE(err, "Remote elevate requires password!")
+	switch {
+	case ctx.Remote != "":
+		locator, err := ami.LoadRemoteLocator(app.GetPath())
+		config := ctx.ToRemoteConfiguration(app)
+		useExistingCredentials := false
+		if err == nil && !ctx.RemoteReset {
+			log.Info("Old node remote locator found. Merging...")
+			config.PopulateWith(locator)
+			useExistingCredentials = promptReuseElevateCredentials()
+		}
+		err = os.MkdirAll(app.GetPath(), os.ModePerm)
+		if err != nil {
+			return -1, fmt.Errorf("failed to create directory structure for remote node locator - %s", err.Error())
+		}
+		if !useExistingCredentials {
+			switch ctx.RemoteElevate {
+			case ami.REMOTE_ELEVATION_SU:
+				fallthrough
+			case ami.REMOTE_ELEVATION_SUDO:
+				remoteElevatePassword := util.RequirePasswordE("Enter password to use for elevation on node remote:", "Remote elevate requires password!", constants.ExitInternalError)
 				ctx.RemoteElevatePassword = remoteElevatePassword
 
 				credentials := ctx.ToRemoteElevateCredentials()
 				config.ElevationCredentials = credentials
 				ami.WriteRemoteElevationCredentials(app.GetPath(), config, credentials)
 			}
+		}
 
-			ami.WriteRemoteLocator(app.GetPath(), config, ctx.RemoteReset)
-			err = ami.PrepareRemote(app.GetPath(), config, ctx.RemoteAuth)
+		locator = ami.WriteRemoteLocator(app.GetPath(), config, ctx.RemoteReset)
+		err = ami.PrepareRemote(app.GetPath(), config, ctx.RemoteAuth)
+		if err != nil {
+			return -1, fmt.Errorf("failed to create remote node locator - %s", err.Error())
+		}
+
+		// on remote we need to use locator username
+		ctx.User = locator.Username
+	case app.IsRemoteApp():
+		log.Warn("Found remote app locator. Setup will run on remote.")
+		ami.SetupRemoteMavbake(app.GetPath(), "latest")
+
+		locator, err := ami.LoadRemoteLocator(app.GetPath())
+		if err != nil {
+			return -1, fmt.Errorf("failed to load remote locator - %s", err.Error())
+		}
+		// on remote we need to use locator username
+		ctx.User = locator.Username
+
+		// patch missing local_username
+		// TODO: remove this after October 2025
+		// everyone should use local_username at that point
+		if locator.LocalUsername == "" {
+			definition, _, err := signer.FromPath("").LoadAppDefinition()
 			if err != nil {
-				return -1, fmt.Errorf("failed to create remote node locator - %s", err.Error())
+				return -1, fmt.Errorf("failed to load signer definition - %s", err.Error())
 			}
-
-			if ctx.RemoteUser != "" {
-				ctx.User = ctx.RemoteUser
+			if user, ok := definition["user"].(string); ok {
+				locator.LocalUsername = user
+			} else {
+				return -1, fmt.Errorf("failed to load signer definition - unexpected format")
 			}
-
-			if ctx.RemoteElevate != ami.REMOTE_ELEVATION_NONE {
-				// override with username we use to connect to remote
-				// se we do not have to prompt for elevation when collecting info and other common tasks
-				ctx.User = locator.Username
-			}
-		}
-
-		appDef, err := base.GenerateConfiguration(app.GetAmiTemplate(ctx), ctx)
-		if err != nil {
-			log.Warn(err)
-		}
-		oldAppDef, err := ami.ReadAppDefinition(app.GetPath(), constants.DefaultAppJsonName)
-		if oldAppDef != nil && err == nil {
-			if oldConfiguration, ok := (*oldAppDef)["configuration"].(map[string]interface{}); ok {
-				log.Info("Found old configuration. Merging...")
-				appDef["configuration"] = util.MergeMaps(oldConfiguration, appDef["configuration"].(map[string]interface{}), true)
-			}
-		}
-
-		err = ami.WriteAppDefinition(app.GetPath(), appDef, constants.DefaultAppJsonName)
-		if err != nil {
-			return -1, fmt.Errorf("failed to write app definition - %s", err.Error())
+			ami.WriteRemoteLocator(app.GetPath(), locator, false)
 		}
 	}
 
-	return ami.SetupApp(app.GetPath(), args...)
+	appDef, err := base.GenerateConfiguration(app.GetAmiTemplate(ctx), ctx)
+	if err != nil {
+		return -1, fmt.Errorf("failed to generate configuration - %s", err.Error())
+	}
+	oldAppDef, err := ami.ReadAppDefinition(app.GetPath(), constants.DefaultAppJsonName)
+	if oldAppDef != nil && err == nil {
+		if oldConfiguration, ok := oldAppDef["configuration"].(map[string]any); ok {
+			log.Info("Found old configuration. Merging...")
+			appDef["configuration"] = util.MergeMapsDeep(oldConfiguration, appDef["configuration"].(map[string]any), true)
+		}
+	}
+
+	err = ami.WriteAppDefinition(app.GetPath(), appDef, constants.DefaultAppJsonName)
+	if err != nil {
+		return -1, fmt.Errorf("failed to write app definition - %s", err.Error())
+	}
+
+	exitCode, err := ami.SetupApp(app.GetPath(), args...)
+	if err != nil || exitCode != 0 {
+		return exitCode, err
+	}
+
+	if app.IsRemoteApp() {
+		// we need to set permissions for remote apps
+		// while apps set their permissions automatically during setup
+		// remote apps need to set permissions manually as setup is run on remote
+		user := app.GetUser()
+		if user != "" {
+			util.ChownR(user, app.GetPath())
+		}
+	}
+	return 0, nil
 }

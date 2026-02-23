@@ -1,13 +1,28 @@
 package constants
 
-const (
-	VERSION = "0.16.0-alpha.5"
+import (
+	"runtime"
+)
 
-	DefaultBBDirectory       string = "/mavpay"
-	DefaultRemoteBBDirectory string = DefaultBBDirectory
-	DefaultRemoteUser        string = "bb"
-	DefaultSshUser           string = "root"
-	DefaultBbCliUrl          string = "https://raw.githubusercontent.com/mavryk-network/mavbake-releases/main/mavbake-linux-%s"
+const (
+	MavbakeRepository string = "mavryk-network/mavbake"
+
+	defaultBBDirectory      string = "/mavbake"
+	defaultBBDirectoryMacOS string = "/usr/local/mavbake"
+	DefaultRemoteUser       string = "bb"
+	DefaultSshUser          string = "root"
 
 	DefaultAppJsonName string = "app.json"
+
+	MvktConsensusKeyCheckingEndpoint = "https://api.mavryk.network/"
 )
+
+var (
+	DefaultBBDirectory string = defaultBBDirectory
+)
+
+func init() {
+	if runtime.GOOS == "darwin" {
+		DefaultBBDirectory = defaultBBDirectoryMacOS
+	}
+}

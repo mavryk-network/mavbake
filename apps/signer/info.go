@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/apps/base"
 
@@ -14,11 +16,43 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
+type Info struct {
+	base.InfoBase
+	Services map[string]base.AmiServiceInfo `json:"services"`
+	Type     string                         `json:"type"`
+	Version  string                         `json:"version"`
+	Wallets  map[string]base.AmiWalletInfo  `json:"wallets"`
+}
+
+func (i *Info) UnmarshalJSON(data []byte) error {
+	type Alias Info
+	aux := &struct {
+		Services json.RawMessage `json:"services"`
+		Wallets  json.RawMessage `json:"wallets"`
+		*Alias
+	}{
+		Alias: (*Alias)(i),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if err := base.UnmarshalIfNotEmptyArray(aux.Wallets, &i.Wallets); err != nil {
+		return err
+	}
+	if err := base.UnmarshalIfNotEmptyArray(aux.Services, &i.Services); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type InfoCollectionOptions struct {
 	//Timeout  int
-	Baking   bool
+	Wallets  bool
 	Simple   bool
 	Services bool
+	// Sensitive bool // Not needed for now
 }
 
 func (infoCollectionOptions *InfoCollectionOptions) toAmiArgs() []string {
@@ -27,8 +61,8 @@ func (infoCollectionOptions *InfoCollectionOptions) toAmiArgs() []string {
 	// 	args = append(args, fmt.Sprintf("--timeout=%d", infoCollectionOptions.Timeout))
 	// }
 
-	if infoCollectionOptions.Baking {
-		args = append(args, "--baking")
+	if infoCollectionOptions.Wallets {
+		args = append(args, "--wallets")
 	}
 	if infoCollectionOptions.Simple {
 		args = append(args, "--simple")
@@ -36,11 +70,14 @@ func (infoCollectionOptions *InfoCollectionOptions) toAmiArgs() []string {
 	if infoCollectionOptions.Services {
 		args = append(args, "--services")
 	}
+	// if infoCollectionOptions.Sensitive {
+	// 	args = append(args, "--sensitive")
+	// }
 	return args
 }
 
 func (sico *InfoCollectionOptions) All() bool {
-	return !sico.Baking && !sico.Simple && !sico.Services
+	return !sico.Wallets && !sico.Simple && !sico.Services
 }
 
 func (app *Signer) getInfoCollectionOptions(optionsJson []byte) *InfoCollectionOptions {
@@ -62,16 +99,24 @@ func (app *Signer) GetAvailableInfoCollectionOptions() []base.AmiInfoCollectionO
 	return result
 }
 
-func (app *Signer) GetInfoFromOptions(options *InfoCollectionOptions) (map[string]interface{}, error) {
+func (app *Signer) GetInfoFromOptions(options *InfoCollectionOptions) (Info, error) {
 	args := options.toAmiArgs()
 	infoBytes, _, err := ami.ExecuteInfo(app.GetPath(), args...)
 	if err != nil {
-		return base.GenerateFailedInfo(string(infoBytes), err), fmt.Errorf("failed to collect app info (%s)", err.Error())
+		failedInfo := Info{
+			InfoBase: base.GenerateFailedInfo(string(infoBytes), err),
+		}
+		return failedInfo, fmt.Errorf("failed to collect app info (%s)", err.Error())
 	}
-	return base.ParseInfoOutput(infoBytes)
+
+	info, err := base.ParseInfoOutput[Info](infoBytes)
+	if err != nil {
+		return Info{InfoBase: base.GenerateFailedInfo(string(infoBytes), err)}, err
+	}
+	return info, nil
 }
 
-func (app *Signer) GetInfo(optionsJson []byte) (map[string]interface{}, error) {
+func (app *Signer) GetInfo(optionsJson []byte) (any, error) {
 	return app.GetInfoFromOptions(app.getInfoCollectionOptions(optionsJson))
 }
 
@@ -82,26 +127,25 @@ func (app *Signer) GetServiceInfo() (map[string]base.AmiServiceInfo, error) {
 	if err != nil {
 		return result, err
 	}
-	jsonString, _ := json.Marshal(info["services"])
-	json.Unmarshal(jsonString, &result)
-	return result, err
+	return info.Services, err
 }
 
 func (app *Signer) IsServiceStatus(id string, status string) (bool, error) {
-	serviceInfo, err := app.GetServiceInfo()
-	if err != nil {
-		return false, err
-	}
-	if service, ok := serviceInfo[id]; ok && service.Status == status {
-		return true, nil
-	}
-	return false, nil
+	return base.IsServiceStatus(app, id, status)
+}
+
+func (app *Signer) IsAnyServiceStatus(status string) (bool, error) {
+	return base.IsAnyServiceStatus(app, status)
 }
 
 func (app *Signer) PrintInfo(optionsJson []byte) error {
-	signerInfo, err := app.GetInfo(optionsJson)
+	signerInfoRaw, err := app.GetInfo(optionsJson)
 	if err != nil {
 		return err
+	}
+	signerInfo, ok := signerInfoRaw.(Info)
+	if !ok {
+		return fmt.Errorf("invalid signer info type")
 	}
 
 	infoCollectionOptions := app.getInfoCollectionOptions(optionsJson)
@@ -112,18 +156,46 @@ func (app *Signer) PrintInfo(optionsJson []byte) error {
 	signerTable.SetOutputMirror(os.Stdout)
 	signerTable.AppendHeader(table.Row{app.GetLabel(), app.GetLabel()}, table.RowConfig{AutoMerge: true})
 
-	signerTable.AppendRow(table.Row{"Status", fmt.Sprint(signerInfo["status"])})
-	signerTable.AppendRow(table.Row{"Status Level", fmt.Sprint(signerInfo["level"])})
+	signerTable.AppendRow(table.Row{"Status", signerInfo.Status})
+	signerTable.AppendRow(table.Row{"Status Level", signerInfo.Level})
 
-	if infoCollectionOptions.All() || infoCollectionOptions.Simple || infoCollectionOptions.Baking {
+	if infoCollectionOptions.All() || infoCollectionOptions.Simple || infoCollectionOptions.Wallets {
 		// Baker Info
 		signerTable.AppendSeparator()
-		signerTable.AppendRow(table.Row{"Baking", "Baking"}, table.RowConfig{AutoMerge: true})
+		signerTable.AppendRow(table.Row{"Wallets", "Wallets"}, table.RowConfig{AutoMerge: true})
 		signerTable.AppendSeparator()
-		signerTable.AppendRow(table.Row{"Ledger Id", fmt.Sprint(signerInfo["ledger_id"])})
-		signerTable.AppendRow(table.Row{"Baking App", fmt.Sprint(signerInfo["baking_app"])})
-		signerTable.AppendRow(table.Row{"Baking App Status", fmt.Sprint(signerInfo["baking_app_status"])})
-		signerTable.AppendRow(table.Row{"Baker Address", fmt.Sprint(signerInfo["baker_address"])})
+		if wallets := signerInfo.Wallets; len(wallets) > 0 {
+			wallet_ids := lo.Keys(wallets)
+			sort.Strings(wallet_ids)
+			for _, k := range wallet_ids {
+				walletProperties := wallets[k]
+
+				kind := walletProperties.Kind
+				pkh := walletProperties.Pkh
+				switch kind {
+				case "ledger":
+					status := "error"
+					if walletProperties.LedgerStatus == "connected" && walletProperties.Authorized {
+						status = "ok"
+					}
+					signerTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v) - %v", kind, pkh, status)})
+				case "mavsign":
+					status := "error"
+					if walletProperties.Authorized {
+						status = "ok"
+					}
+					signerTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v) - %v", kind, pkh, status)})
+				case "http":
+					signerTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v) - %v", walletProperties.Endpoint, pkh, walletProperties.Status)})
+				case "soft":
+					signerTable.AppendRow(table.Row{k, fmt.Sprintf("⚠️ %v ⚠️ (%v)", kind, pkh)})
+				case "remote":
+					signerTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v)", kind, pkh)})
+				}
+			}
+		} else {
+			signerTable.AppendRow(table.Row{"N/A", "N/A"})
+		}
 	}
 
 	if infoCollectionOptions.All() || infoCollectionOptions.Services {
@@ -133,11 +205,7 @@ func (app *Signer) PrintInfo(optionsJson []byte) error {
 		signerTable.AppendRow(table.Row{"Name", "Status (Started)"})
 		signerTable.AppendSeparator()
 
-		var services map[string]base.AmiServiceInfo
-		jsonString, _ := json.Marshal(signerInfo["services"])
-		json.Unmarshal(jsonString, &services)
-
-		for k, v := range services {
+		for k, v := range signerInfo.Services {
 			signerTable.AppendRow(table.Row{k, fmt.Sprintf("%v (%v)", v.Status, v.Started)})
 		}
 	}

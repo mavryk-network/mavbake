@@ -9,16 +9,15 @@ import (
 	"github.com/mavryk-network/mavbake/apps/base"
 	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/constants"
-
-	log "github.com/sirupsen/logrus"
+	"go.alis.is/common/log"
 )
 
 var (
-	Id           string                 = constants.NodeAppId
-	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
+	Id           string         = constants.NodeAppId
+	AMI_TEMPLATE map[string]any = map[string]any{
 		"id":   constants.NodeAppId,
-		"type": map[string]interface{}{"id": "mav.node", "version": "latest"},
-		"configuration": map[string]interface{}{
+		"type": map[string]any{"id": "mvrk.node", "version": "latest"},
+		"configuration": map[string]any{
 			"NODE_TYPE": "baker",
 		},
 		"user": "",
@@ -40,14 +39,36 @@ func FromPath(path string) *Node {
 }
 
 func (app *Node) GetPath() string {
+	appPath := path.Join(cli.BBdir, Id)
 	if app.Path != "" {
-		return app.Path
+		appPath = path.Join(app.Path, Id)
 	}
-	return path.Join(cli.BBdir, Id)
+
+	if isRemote, locator := ami.IsRemoteApp(appPath); isRemote {
+		return path.Join(locator.InstancePath, locator.App)
+	}
+
+	return appPath
 }
 
 func (app *Node) GetId() string {
 	return strings.ToLower(constants.NodeAppId)
+}
+
+func (app *Node) GetUser() string {
+	if isRemote, locator := ami.IsRemoteApp(app.GetPath()); isRemote {
+		return locator.LocalUsername
+	}
+
+	def, _, err := base.LoadAppDefinition(app)
+	if err != nil {
+		log.Warn("Failed to load definition:", "app", app.GetId(), "error", err.Error())
+		return ""
+	}
+	if user, ok := def["user"].(string); ok {
+		return user
+	}
+	return ""
 }
 
 func (app *Node) GetLabel() string {
@@ -57,7 +78,7 @@ func (app *Node) GetLabel() string {
 	return strings.ToUpper(app.GetId())
 }
 
-func (app *Node) GetAmiTemplate(ctx *base.SetupContext) map[string]interface{} {
+func (app *Node) GetAmiTemplate(ctx *base.SetupContext) map[string]any {
 	return AMI_TEMPLATE
 }
 
@@ -67,19 +88,6 @@ func (app *Node) IsRemoteApp() bool {
 }
 
 func (app *Node) IsInstalled() bool {
-	if isRemote, locator := ami.IsRemoteApp(app.GetPath()); isRemote {
-		session, err := locator.OpenAppRemoteSession()
-		if err != nil {
-			log.Warnf("Failed to check whether %s is installed on remote (%s)!", app.GetId(), err.Error())
-			return false
-		}
-		defer session.Close()
-
-		var output []byte
-		output, _, err = session.IsRemoteAppInstalled(app.GetId())
-
-		return err == nil && strings.Contains(string(output), "true")
-	}
 	return ami.IsAppInstalled(app.GetPath())
 }
 

@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	Id           string                 = constants.MavpayAppId
-	AMI_TEMPLATE map[string]interface{} = map[string]interface{}{
+	Id           string         = constants.MavpayAppId
+	AMI_TEMPLATE map[string]any = map[string]any{
 		"id":            constants.MavpayAppId,
-		"type":          map[string]interface{}{"id": "mvd.mavpay", "version": "latest"},
-		"configuration": map[string]interface{}{},
+		"type":          map[string]any{"id": "mvd.mavpay", "version": "latest"},
+		"configuration": map[string]any{},
 		"user":          "",
 	}
 )
@@ -49,7 +49,7 @@ func (app *Mavpay) GetLabel() string {
 	return strings.ToUpper(app.GetId())
 }
 
-func (app *Mavpay) GetAmiTemplate(ctx *base.SetupContext) map[string]interface{} {
+func (app *Mavpay) GetAmiTemplate(ctx *base.SetupContext) map[string]any {
 	return AMI_TEMPLATE
 }
 func (app *Mavpay) IsInstalled() bool {

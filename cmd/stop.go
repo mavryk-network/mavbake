@@ -6,8 +6,8 @@ import (
 	"github.com/mavryk-network/mavbake/apps"
 	"github.com/mavryk-network/mavbake/system"
 	"github.com/mavryk-network/mavbake/util"
+	"go.alis.is/common/log"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ var stopCmd = &cobra.Command{
 			util.AssertEE(err, fmt.Sprintf("Failed to stop %s's services!", v.GetId()), exitCode)
 		}
 
-		log.Info("Requested services stopped succesfully")
+		log.Info("Requested services stopped successfully")
 	},
 }
 

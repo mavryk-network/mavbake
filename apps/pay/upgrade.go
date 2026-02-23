@@ -6,7 +6,7 @@ import (
 )
 
 func (app *Mavpay) Upgrade(ctx *base.UpgradeContext, args ...string) (int, error) {
-	wasRunning, _ := app.IsServiceStatus("mavpeak", "running")
+	wasRunning, _ := app.IsAnyServiceStatus("running")
 	if wasRunning {
 		exitcode, err := app.Stop()
 		if err != nil {

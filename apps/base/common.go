@@ -1,11 +1,12 @@
 package base
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
+	"github.com/hjson/hjson-go/v4"
 	"github.com/mavryk-network/mavbake/ami"
 	"github.com/mavryk-network/mavbake/cli"
 	"github.com/mavryk-network/mavbake/util"
@@ -15,7 +16,15 @@ type IAmiBasedApp interface {
 	GetPath() string
 }
 
-func LoadAppDefinition(app IAmiBasedApp) (map[string]interface{}, string, error) {
+func GetUser(app IAmiBasedApp) string {
+	def, _, err := LoadAppDefinition(app)
+	if err != nil {
+		return ""
+	}
+	return def["user"].(string)
+}
+
+func LoadAppDefinition(app IAmiBasedApp) (map[string]any, string, error) {
 	def, path, err := ami.FindAppDefinition(app.GetPath())
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to load '%s' definition (%s)", app.GetPath(), err.Error())
@@ -23,61 +32,89 @@ func LoadAppDefinition(app IAmiBasedApp) (map[string]interface{}, string, error)
 	return def, path, nil
 }
 
-func LoadAppConfiguration(app IAmiBasedApp) (map[string]interface{}, error) {
+func LoadAppConfiguration(app IAmiBasedApp) (map[string]any, error) {
 	def, _, err := LoadAppDefinition(app)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load '%s' configuration (%s)", app.GetPath(), err.Error())
 	}
-	return def, nil
+	if config, ok := def["configuration"].(map[string]any); ok {
+		return config, nil
+	}
+	return nil, fmt.Errorf("failed to load '%s' configuration - unexpected format", app.GetPath())
 }
 
-type MavPayAppDefinition struct {
+func GetActiveModel(app IAmiBasedApp) (map[string]any, error) {
+	return ami.GetAppActiveModel(app.GetPath())
+}
+
+type MavBakeAppDefinition struct {
 	Id      string
-	Control MavPayApp
+	Control MavBakeApp
 }
 
-func GenerateConfiguration(template map[string]interface{}, ctx *SetupContext) (map[string]interface{}, error) {
+// try to a dumb conversion
+// https://github.com/mavryk-network/mvrk.configs/blob/main/basenet.json
+// to
+// https://raw.githubusercontent.com/mavryk-network/mvrk.configs/refs/heads/main/basenet.json
+func tryConvertGitHubContentURL(url string) string {
+	if !strings.HasPrefix(url, "https://github.com/") || !strings.Contains(url, "/blob/") {
+		return url
+	}
+
+	result := strings.Replace(url, "https://github.com/", "https://raw.githubusercontent.com/", 1)
+	result = strings.Replace(result, "/blob/", "/refs/heads/", 1)
+	return result
+}
+
+func GenerateConfiguration(template map[string]any, ctx *SetupContext) (map[string]any, error) {
 	appDef := template
 
 	appDef["id"] = fmt.Sprintf("%s-%s", cli.BBInstanceId, appDef["id"])
 	appDef["user"] = ctx.User
-	appDef["type"].(map[string]interface{})["version"] = ctx.Version
+	appDef["type"].(map[string]any)["version"] = ctx.Version
 
 	if ctx.Branch != "main" && ctx.Branch != "" {
-		appDef["type"].(map[string]interface{})["id"] = fmt.Sprintf("%s.%s", appDef["type"].(map[string]interface{})["id"], ctx.Branch)
+		appDef["type"].(map[string]any)["id"] = fmt.Sprintf("%s.%s", appDef["type"].(map[string]any)["id"], ctx.Branch)
 	}
 
-	appConfiguration := appDef["configuration"].(map[string]interface{})
-	appCtxConfiguration := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(ctx.Configuration), &appCtxConfiguration); err == nil || ctx.Configuration == "" {
+	appConfiguration := appDef["configuration"].(map[string]any)
+	appCtxConfiguration := make(map[string]any)
+
+	switch {
+	case ctx.Configuration == "":
+		return appDef, nil
+	case util.IsValidUrl(ctx.Configuration):
+		tmpConfigurationFile := path.Join(os.TempDir(), "bb-configuration")
+
+		err := util.DownloadFile(tryConvertGitHubContentURL(ctx.Configuration), tmpConfigurationFile, false)
+		if err != nil {
+			return appDef, fmt.Errorf("failed to download configuration file - %s", ctx.Configuration)
+		}
+		ctx.Configuration = tmpConfigurationFile
+
+		configurationFileJson, err := os.ReadFile(ctx.Configuration)
+		if err != nil {
+			return appDef, fmt.Errorf("invalid configuration - %s (%s)", ctx.Configuration, err.Error())
+		}
+
+		configurationFile := make(map[string]any)
+		err = hjson.Unmarshal(configurationFileJson, &configurationFile)
+		if err != nil {
+			return appDef, fmt.Errorf("invalid configuration - %s (%s)", ctx.Configuration, err.Error())
+		}
+		for k, v := range configurationFile {
+			appConfiguration[k] = v
+		}
+
+		return appDef, nil
+	default:
+		err := hjson.Unmarshal([]byte(ctx.Configuration), &appCtxConfiguration)
+		if err != nil {
+			return appDef, fmt.Errorf("invalid configuration - %s (%s)", ctx.Configuration, err.Error())
+		}
 		for k, v := range appCtxConfiguration {
 			appConfiguration[k] = v
 		}
 		return appDef, nil
 	}
-
-	tmpConfigurationFile := path.Join(os.TempDir(), "bb-configuration")
-	if util.IsValidUrl(ctx.Configuration) {
-		err := util.DownloadFile(ctx.Configuration, tmpConfigurationFile, false)
-		if err != nil {
-			return appDef, fmt.Errorf("failed to download configuration file - %s", ctx.Configuration)
-		}
-		ctx.Configuration = tmpConfigurationFile
-	}
-
-	configurationFileJson, err := os.ReadFile(ctx.Configuration)
-	if err != nil {
-		return appDef, fmt.Errorf("invalid configuration - %s (%s)", ctx.Configuration, err.Error())
-	}
-
-	configurationFile := make(map[string]interface{})
-	err = json.Unmarshal(configurationFileJson, &configurationFile)
-	if err != nil {
-		return appDef, fmt.Errorf("invalid configuration - %s (%s)", ctx.Configuration, err.Error())
-	}
-	for k, v := range configurationFile {
-		appConfiguration[k] = v
-	}
-
-	return appDef, nil
 }
