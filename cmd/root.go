@@ -67,8 +67,12 @@ var (
 		Use:   "mavbake",
 		Short: "mavbake CLI",
 		Long: fmt.Sprintf(`mavbake CLI
+Copyright © %d tez.capital
 Copyright © %d Mavryk Dynamics
-`, time.Now().Year()),
+
+This is a modified version of tezbake (https://github.com/tez-capital/tezbake).
+Licensed under the Server Side Public License (SSPL) v1.
+`, time.Now().Year(), time.Now().Year()),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if cmd.Flags().Changed(PATH_FLAG) {
 				cli.BBdir, _ = cmd.Flags().GetString(PATH_FLAG)

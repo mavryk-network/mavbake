@@ -1,5 +1,9 @@
 # MAVBAKE
 
+This project is a modified version of [tezbake](https://github.com/tez-capital/tezbake) by [tez.capital](https://tez.capital), adapted for the [Mavryk Network](https://mavryk.org).
+
+Licensed under the [Server Side Public License (SSPL) v1](LICENSE).
+
 Please see the [documentation](https://bake.mavryk.org/mavbake/) for more information.
 
 ### 🧠 Powered by MvKT API
