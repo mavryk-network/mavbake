@@ -38,7 +38,7 @@ func FromPath(path string) *Signer {
 func (app *Signer) GetAmiTemplate(ctx *base.SetupContext) map[string]any {
 	if ctx.Remote != "" {
 		connectionsDetails := system.GetRemoteConnectionDetails(ctx.Remote)
-		// from mav.signer
+		// from mvrk.signer
 		// REMOTE_SSH_PORT = am.app.get_configuration("REMOTE_SSH_PORT", "22"),
 		// REMOTE_SSH_KEY = am.app.get_configuration("REMOTE_SSH_KEY"),
 		// REMOTE_NODE = am.app.get_configuration("REMOTE_NODE"),

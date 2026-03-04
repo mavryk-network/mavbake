@@ -1,6 +1,6 @@
 {
     id: bb-default-signer
-    type: mav.signer
+    type: mvrk.signer
     configuration: {}
     user: ascend
 }
