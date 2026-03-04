@@ -5,7 +5,7 @@
 	},
 	"id": "bb-default-node",
 	"type": {
-		"id": "xtz.node",
+		"id": "mvrk.node",
 		"version": "latest"
 	},
 	"user": "v"

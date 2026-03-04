@@ -16,7 +16,7 @@ var (
 	Id           string         = constants.DalAppId
 	AMI_TEMPLATE map[string]any = map[string]any{
 		"id":   constants.DalAppId,
-		"type": map[string]any{"id": "xtz.dal", "version": "latest"},
+		"type": map[string]any{"id": "mvrk.dal", "version": "latest"},
 		"configuration": map[string]any{
 			"NODE_ENDPOINT": "http://127.0.0.1:8732",
 		},
