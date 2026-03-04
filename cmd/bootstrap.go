@@ -27,8 +27,8 @@ type network struct {
 
 var availableNetworks = []network{
 	{name: "mainnet", modes: []string{"rolling", "full"}},
-	{name: "ghostnet", modes: []string{"rolling"}},
-	{name: "shadownet", modes: []string{"rolling", "full"}},
+	{name: "basenet", modes: []string{"rolling"}},
+	// {name: "shadownet", modes: []string{"rolling", "full"}},
 }
 
 // Quick option represents a preset bootstrap configuration
