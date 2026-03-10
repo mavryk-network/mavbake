@@ -26,6 +26,7 @@ var dalCmd = &cobra.Command{
 
 func init() {
 	dalCmd.Flags().SetInterspersed(false)
+	dalCmd.Hidden = true
 
 	RootCmd.AddCommand(dalCmd)
 }

@@ -248,6 +248,10 @@ func init() {
 	setupCmd.Flags().String(DalRemote, "", "username:<ssh key file>@address (experimental)")
 	setupCmd.Flags().String(DalRemoteAuth, "", "pass|key:<path to key>  (experimental)")
 	setupCmd.Flags().String(DalRemoteElevate, "", "only 'sudo' supported now (experimental)")
+	setupCmd.Flags().MarkHidden(WithDal)
+	setupCmd.Flags().MarkHidden(DalRemote)
+	setupCmd.Flags().MarkHidden(DalRemoteAuth)
+	setupCmd.Flags().MarkHidden(DalRemoteElevate)
 
 	setupCmd.Flags().Bool(RemoteReset, false, "Resets and reconfigures remote node locator. (experimental)")
 	setupCmd.Flags().Bool(DisablePostProcess, false, "Disables post process - app linking node <-> dal.")

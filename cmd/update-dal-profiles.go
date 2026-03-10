@@ -79,6 +79,7 @@ var updateDalProfilesCmd = &cobra.Command{
 func init() {
 	updateDalProfilesCmd.Flags().Bool("auto", false, "Autodetect attester profiles")
 	updateDalProfilesCmd.Flags().Bool("force", false, "Force update attester profiles")
+	updateDalProfilesCmd.Hidden = true
 
 	RootCmd.AddCommand(updateDalProfilesCmd)
 }

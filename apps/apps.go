@@ -18,7 +18,7 @@ var (
 	Peak    = peak.FromPath("")
 	Pay     = pay.FromPath("")
 	All     = []base.MavBakeApp{
-		Node, Signer, DalNode, Peak, Pay,
+		Node, Signer, Peak, Pay,
 	}
 	Implicit = []base.MavBakeApp{
 		Node, Signer,
