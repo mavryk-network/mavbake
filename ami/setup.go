@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	amiInstallScriptSource = "https://raw.githubusercontent.com/alis-is/ami/master/install.sh"
+	amiInstallScriptSource = "https://raw.githubusercontent.com/mavryk-network/application-management-interface/main/install.sh"
 )
 
 func Install(silent bool) (int, error) {
