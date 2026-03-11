@@ -1,6 +1,6 @@
 docs/cmd/mavbake_version.md## mavbake version
 
-Prints BB CLI version.
+Prints MavBake CLI version.
 
 ### Synopsis
 
@@ -13,7 +13,7 @@ mavbake version [flags]
 ### Options
 
 ```
-  -a, --all      Prints version of all BB instance packages/binaries.
+  -a, --all      Prints version of all MavBake instance packages/binaries.
       --dal      Prints versions of dal.
   -h, --help     help for version
       --node     Prints versions of node.

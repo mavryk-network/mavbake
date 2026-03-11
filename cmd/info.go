@@ -15,8 +15,8 @@ import (
 
 var infoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "Prints runtime information about BB.",
-	Long:  "Collects and prints runtime information about BB instance.",
+	Short: "Prints runtime information about MavBake.",
+	Long:  "Collects and prints runtime information about MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		timeout, _ := cmd.Flags().GetInt("timeout")
 		if timeout <= 0 {

@@ -16,7 +16,7 @@ import (
 
 var appsCmd = &cobra.Command{
 	Use:   "apps",
-	Short: "Prints BB CLI apps.",
+	Short: "Prints MavBake CLI apps.",
 	Long:  "Prints MavBake CLI apps.",
 	Run: func(cmd *cobra.Command, args []string) {
 		appsTable := table.NewWriter()

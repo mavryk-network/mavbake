@@ -19,7 +19,7 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Prints BB CLI version.",
+	Short: "Prints MavBake CLI version.",
 	Long:  "Prints MavBake CLI version.",
 	Run: func(cmd *cobra.Command, args []string) {
 		shouldPrintAll, _ := cmd.Flags().GetBool("all")
@@ -134,7 +134,7 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
-	versionCmd.Flags().BoolP("all", "a", false, "Prints version of all BB instance packages/binaries.")
+	versionCmd.Flags().BoolP("all", "a", false, "Prints version of all MavBake instance packages/binaries.")
 	for _, v := range apps.All {
 		versionCmd.Flags().Bool(v.GetId(), false, fmt.Sprintf("Prints versions of %s.", v.GetId()))
 	}

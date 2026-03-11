@@ -1,10 +1,10 @@
 docs/cmd/mavbake_upgrade.md## mavbake upgrade
 
-Upgrades BB.
+Upgrades MavBake.
 
 ### Synopsis
 
-Upgrades BB instance.
+Upgrades MavBake instance.
 
 ```
 mavbake upgrade [flags]

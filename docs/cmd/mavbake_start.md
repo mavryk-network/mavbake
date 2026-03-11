@@ -1,10 +1,10 @@
 docs/cmd/mavbake_start.md## mavbake start
 
-Starts BB.
+Starts MavBake.
 
 ### Synopsis
 
-Starts services of BB instance.
+Starts services of MavBake instance.
 
 ```
 mavbake start [flags]

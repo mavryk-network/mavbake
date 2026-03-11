@@ -3,7 +3,7 @@
 		"DAL_NODE": "http://127.0.0.1:10732",
 		"NODE_TYPE": "baker"
 	},
-	"id": "bb-default-node",
+	"id": "mavbake-default-node",
 	"type": {
 		"id": "mvrk.node",
 		"version": "latest"

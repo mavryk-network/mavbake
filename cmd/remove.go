@@ -20,8 +20,8 @@ import (
 
 var removeCmd = &cobra.Command{
 	Use:   "remove",
-	Short: "Removes BB.",
-	Long:  "Removes BB instance.",
+	Short: "Removes MavBake.",
+	Long:  "Removes MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		system.RequireElevatedUser()
 
@@ -97,7 +97,7 @@ func init() {
 	for _, v := range apps.All {
 		removeCmd.Flags().Bool(v.GetId(), false, fmt.Sprintf("Removes %s.", v.GetId()))
 	}
-	removeCmd.Flags().BoolP("all", "a", false, "Removes all files related to BB instance.")
+	removeCmd.Flags().BoolP("all", "a", false, "Removes all files related to MavBake instance.")
 	removeCmd.Flags().Bool("force", false, "Forces removal even when there are no package specific removal routines.")
 	removeCmd.Flags().Bool("confirm", false, "Skips confirmation prompts.")
 	RootCmd.AddCommand(removeCmd)

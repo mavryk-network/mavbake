@@ -13,8 +13,8 @@ import (
 
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Starts BB.",
-	Long:  "Starts services of BB instance.",
+	Short: "Starts MavBake.",
+	Long:  "Starts services of MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		system.RequireElevatedUser()
 

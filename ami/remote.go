@@ -425,7 +425,7 @@ func setupMavbakeForRemote(sshClient *ssh.Client, sftp *sftp.Client, locator *Re
 }
 
 func SetupRemoteMavbake(appDir string, tagname string) {
-	config, err := LoadRemoteLocator(appDir) // try to connect with BB keys
+	config, err := LoadRemoteLocator(appDir) // try to connect with MavBake keys
 	util.AssertE(err, "Failed to load remote locator!")
 	session, err := config.OpenAppRemoteSession()
 	util.AssertE(err, "Failed to open remote session!")
@@ -448,12 +448,12 @@ func executePreparationStage(config *RemoteConfiguration, mode string, key []byt
 	util.AssertE(err, "Failed to locate public key!")
 	// write if necessary
 	result := system.RunSshCommand(sshClient, fmt.Sprintf("mkdir -p ~/.ssh; grep \"%s\" ~/.ssh/authorized_keys || echo \"%s\" >> ~/.ssh/authorized_keys", pubKey, pubKey), nil)
-	util.AssertE(result.Error, "Failed to inject BB public key!")
+	util.AssertE(result.Error, "Failed to inject MavBake public key!")
 	log.Info("Remote prepared!")
 }
 
 func PrepareRemote(appDir string, config *RemoteConfiguration, auth string) error {
-	configuration, err := LoadRemoteLocator(appDir) // try to connect with BB keys
+	configuration, err := LoadRemoteLocator(appDir) // try to connect with MavBake keys
 	if err == nil {
 		session, err := configuration.OpenAppRemoteSession()
 		if err == nil {

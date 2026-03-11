@@ -1,5 +1,5 @@
 {
-    id: bb-default-signer
+    id: mavbake-default-signer
     type: mvrk.signer
     configuration: {}
     user: ascend

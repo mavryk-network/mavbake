@@ -17,7 +17,7 @@ import (
 )
 
 // Snapshot configuration
-const snapshotBaseURL = "https://snapshots.tzinit.org"
+const snapshotBaseURL = "https://snapshots.mavryk.network"
 
 // Network and snapshot configuration
 type network struct {

@@ -6,6 +6,6 @@ var (
 	JsonLogFormat     = false
 	LogLevel          = "info"
 	BBdir             = constants.DefaultBBDirectory
-	BBInstanceId      = "bb-default"
+	BBInstanceId      = "mavbake-default"
 	ElevationRequired = false
 )

@@ -84,7 +84,7 @@ func GenerateConfiguration(template map[string]any, ctx *SetupContext) (map[stri
 	case ctx.Configuration == "":
 		return appDef, nil
 	case util.IsValidUrl(ctx.Configuration):
-		tmpConfigurationFile := path.Join(os.TempDir(), "bb-configuration")
+		tmpConfigurationFile := path.Join(os.TempDir(), "mavbake-configuration")
 
 		err := util.DownloadFile(tryConvertGitHubContentURL(ctx.Configuration), tmpConfigurationFile, false)
 		if err != nil {

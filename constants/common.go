@@ -9,7 +9,7 @@ const (
 
 	defaultBBDirectory      string = "/mavbake"
 	defaultBBDirectoryMacOS string = "/usr/local/mavbake"
-	DefaultRemoteUser       string = "bb"
+	DefaultRemoteUser       string = "mavbake"
 	DefaultSshUser          string = "root"
 
 	DefaultAppJsonName string = "app.json"

@@ -48,8 +48,8 @@ const (
 
 var setupCmd = &cobra.Command{
 	Use:   "setup",
-	Short: "Setups BB.",
-	Long:  "Installs and configures BB instance.",
+	Short: "Setups MavBake.",
+	Long:  "Installs and configures MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		username := util.GetCommandStringFlag(cmd, User)
 		system.RequireElevatedUser("--user=" + username)
@@ -67,11 +67,11 @@ var setupCmd = &cobra.Command{
 		force := util.GetCommandBoolFlagS(cmd, Force)
 		disablePostProcess := util.GetCommandBoolFlagS(cmd, DisablePostProcess)
 		util.AssertBE(id != "", "Id not specified", constants.ExitInvalidId)
-		if id == "bb-default" && cli.BBdir != constants.DefaultBBDirectory {
+		if id == "mavbake-default" && cli.BBdir != constants.DefaultBBDirectory {
 			// extract last segment and use it as id if it does not contain whitespace
 			id = filepath.Base(cli.BBdir)
 			if strings.Contains(id, " ") {
-				log.Error("Please specify id for baker. 'bb-default' id is allowed only for mavbake installed in default path! The inferred id contains whitespace.", "default_path", constants.DefaultBBDirectory, "id", id)
+				log.Error("Please specify id for baker. 'mavbake-default' id is allowed only for mavbake installed in default path! The inferred id contains whitespace.", "default_path", constants.DefaultBBDirectory, "id", id)
 				os.Exit(constants.ExitInvalidId)
 			}
 		}
@@ -226,9 +226,9 @@ func init() {
 	user, err := user.Current()
 	if err != nil {
 		log.Warn("Failed to get current user!")
-		setupCmd.Flags().StringP(User, "u", "", "User you want to operate BB under.")
+		setupCmd.Flags().StringP(User, "u", "", "User you want to operate MavBake under.")
 	} else {
-		setupCmd.Flags().StringP(User, "u", user.Username, "User you want to operate BB under.")
+		setupCmd.Flags().StringP(User, "u", user.Username, "User you want to operate MavBake under.")
 	}
 
 	for _, v := range apps.All {
@@ -238,7 +238,7 @@ func init() {
 		setupCmd.Flags().String(fmt.Sprintf("%s-branch", v.GetId()), "", fmt.Sprintf("Sets %s configuration.", v.GetId()))
 	}
 
-	setupCmd.Flags().StringP(Id, "i", "bb-default", "Id of BB instance.")
+	setupCmd.Flags().StringP(Id, "i", "mavbake-default", "Id of MavBake instance.")
 
 	setupCmd.Flags().String(NodeRemote, "", "username:<ssh key file>@address (experimental)")
 	setupCmd.Flags().String(NodeRemoteAuth, "", "pass|key:<path to key>  (experimental)")

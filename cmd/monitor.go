@@ -6,8 +6,8 @@ package cmd
 
 // var monitorCmd = &cobra.Command{
 // 	Use:   "monitor",
-// 	Short: "Monitors BB.",
-// 	Long:  "Monitors BB's status and reports in case of issues.",
+// 	Short: "Monitors MavBake.",
+// 	Long:  "Monitors MavBake's status and reports in case of issues.",
 // 	Run: func(cmd *cobra.Command, args []string) {
 
 // 	},

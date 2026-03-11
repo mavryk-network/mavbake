@@ -14,8 +14,8 @@ import (
 
 var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
-	Short: "Upgrades BB.",
-	Long:  "Upgrades BB instance.",
+	Short: "Upgrades MavBake.",
+	Long:  "Upgrades MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		system.RequireElevatedUser()
 

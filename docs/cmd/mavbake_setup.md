@@ -1,10 +1,10 @@
 docs/cmd/mavbake_setup.md## mavbake setup
 
-Setups BB.
+Setups MavBake.
 
 ### Synopsis
 
-Installs and configures BB instance.
+Installs and configures MavBake instance.
 
 ```
 mavbake setup [flags]
@@ -24,7 +24,7 @@ mavbake setup [flags]
       --disable-post-process          Disables post process - app linking node <-> dal.
       --force                         Force setup - potentially overwriting existing installation.
   -h, --help                          help for setup
-  -i, --id string                     Id of BB instance. (default "bb-default")
+  -i, --id string                     Id of MavBake instance. (default "mavbake-default")
       --node                          Setups node.
       --node-branch string            Sets node configuration.
       --node-configuration string     Sets node configuration. (default "{}")
@@ -46,7 +46,7 @@ mavbake setup [flags]
       --signer-configuration string   Sets signer configuration. (default "{}")
       --signer-version string         Sets signer configuration. (default "latest")
       --skip-ami-setup                Skip ami setup.
-  -u, --user string                   User you want to operate BB under. (default "runner")
+  -u, --user string                   User you want to operate MavBake under. (default "runner")
       --with-dal                      Setup dal node. (experimental)
 ```
 

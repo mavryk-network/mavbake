@@ -1,10 +1,10 @@
 docs/cmd/mavbake_info.md## mavbake info
 
-Prints runtime information about BB.
+Prints runtime information about MavBake.
 
 ### Synopsis
 
-Collects and prints runtime information about BB instance.
+Collects and prints runtime information about MavBake instance.
 
 ```
 mavbake info [flags]

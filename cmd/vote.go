@@ -30,7 +30,7 @@ var voteCmd = &cobra.Command{
 		voteArgs = append(voteArgs, "client")
 		// TODO:
 		// if period == "auto" {
-		// 	bb.Node.GetInfo()
+		// 	mavbake.Node.GetInfo()
 		// }
 		switch period {
 		case "proposal":

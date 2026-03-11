@@ -12,8 +12,8 @@ import (
 
 var isAppInstalledCmd = &cobra.Command{
 	Use:    "is-app-installed",
-	Short:  "Checks whether specific app is instaleled BB.",
-	Long:   "Stops services of BB instance.",
+	Short:  "Checks whether specific app is instaleled MavBake.",
+	Long:   "Stops services of MavBake instance.",
 	Hidden: true,
 	Args:   cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

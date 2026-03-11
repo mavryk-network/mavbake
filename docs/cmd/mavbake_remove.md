@@ -1,10 +1,10 @@
 docs/cmd/mavbake_remove.md## mavbake remove
 
-Removes BB.
+Removes MavBake.
 
 ### Synopsis
 
-Removes BB instance.
+Removes MavBake instance.
 
 ```
 mavbake remove [flags]
@@ -13,7 +13,7 @@ mavbake remove [flags]
 ### Options
 
 ```
-  -a, --all       Removes all files related to BB instance.
+  -a, --all       Removes all files related to MavBake instance.
       --confirm   Skips confirmation prompts.
       --dal       Removes dal.
       --force     Forces removal even when there are no package specific removal routines.

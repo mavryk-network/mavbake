@@ -1,5 +1,5 @@
 {
-    id: bb-default-node
+    id: mavbake-default-node
     type: mvrk.node
     configuration: {
         NODE_TYPE: baker

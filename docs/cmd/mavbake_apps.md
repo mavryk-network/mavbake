@@ -1,6 +1,6 @@
 docs/cmd/mavbake_apps.md## mavbake apps
 
-Prints BB CLI apps.
+Prints MavBake CLI apps.
 
 ### Synopsis
 

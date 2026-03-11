@@ -1,10 +1,10 @@
 docs/cmd/mavbake_stop.md## mavbake stop
 
-Stops BB.
+Stops MavBake.
 
 ### Synopsis
 
-Stops services of BB instance.
+Stops services of MavBake instance.
 
 ```
 mavbake stop [flags]

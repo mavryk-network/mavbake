@@ -13,8 +13,8 @@ import (
 
 var stopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Stops BB.",
-	Long:  "Stops services of BB instance.",
+	Short: "Stops MavBake.",
+	Long:  "Stops services of MavBake instance.",
 	Run: func(cmd *cobra.Command, args []string) {
 		system.RequireElevatedUser()
 
