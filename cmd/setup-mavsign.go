@@ -20,9 +20,10 @@ var (
 )
 
 var setupMavsignCmd = &cobra.Command{
-	Use:   "setup-mavsign",
-	Short: "Setup mavsign for baking.",
-	Long:  "Setups mavsign for baking.",
+	Use:    "setup-mavsign",
+	Short:  "Setup mavsign for baking.",
+	Long:   "Setups mavsign for baking.",
+	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		shouldOperateOnSigner, _ := cmd.Flags().GetBool("signer")
 		shouldOperateOnNode, _ := cmd.Flags().GetBool("node")
