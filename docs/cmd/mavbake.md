@@ -31,7 +31,6 @@ Licensed under the Server Side Public License (SSPL) v1.
 * [mavbake instance](/mavbake/reference/cmd/mavbake_instance)	 - Executes command on a specific mavbake instance or enters the instance environment
 * [mavbake list-ledgers](/mavbake/reference/cmd/mavbake_list-ledgers)	 - Prints list of available ledgers.
 * [mavbake mavkit-signer](/mavbake/reference/cmd/mavbake_mavkit-signer)	 - Passes args through to signer app - mavkit-signer.
-* [mavbake mavsign](/mavbake/reference/cmd/mavbake_mavsign)	 - Passes args through to signer app - mavsign.
 * [mavbake node](/mavbake/reference/cmd/mavbake_node)	 - Passes args through to node app.
 * [mavbake pay](/mavbake/reference/cmd/mavbake_pay)	 - Passes args through to mavpay app.
 * [mavbake peak](/mavbake/reference/cmd/mavbake_peak)	 - Passes args through to peak app.
