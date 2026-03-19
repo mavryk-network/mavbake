@@ -14,6 +14,7 @@ var mavsignCmd = &cobra.Command{
 	Use:                "mavsign",
 	Short:              "Passes args through to signer app - mavsign.",
 	Long:               `Passes args through to signer app - mavsign.`,
+	Hidden:             true,
 	DisableFlagParsing: true,
 	Run: func(cmd *cobra.Command, _ []string) {
 		args := util.GetCommandArgs(cmd)
